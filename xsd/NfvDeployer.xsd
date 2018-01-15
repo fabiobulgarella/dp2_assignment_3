@@ -5,63 +5,20 @@
            targetNamespace="http://www.example.org/nfvInfo"
            elementFormDefault="qualified">
   
-  <xs:element name="nfv" type="nfvType">
-    <xs:key name="vnfKey">
-      <xs:selector xpath="r:catalog/r:vnf" />
-      <xs:field xpath="@name" />
-    </xs:key>
-    <xs:key name="nffgKey">
-      <xs:selector xpath="r:nffgs/r:nffg" />
-      <xs:field xpath="@name" />
-    </xs:key>
-    <xs:key name="nodeKey">
-      <xs:selector xpath="r:nffgs/r:nffg/r:node" />
-      <xs:field xpath="@name" />
-    </xs:key>
-    <xs:key name="hostKey">
-      <xs:selector xpath="r:hosts/r:host" />
-      <xs:field xpath="@name" />
-    </xs:key>
-    <xs:keyref name="vnfKeyref" refer="vnfKey">
-      <xs:selector xpath="r:nffgs/r:nffg/r:node" />
-      <xs:field xpath="@vnfRef" />
-    </xs:keyref>
-    <xs:keyref name="hostKeyref" refer="hostKey">
-      <xs:selector xpath="r:nffgs/r:nffg/r:node" />
-      <xs:field xpath="@hostRef" />
-    </xs:keyref>
-    <xs:keyref name="dstNodeKeyref" refer="nodeKey">
-      <xs:selector xpath="r:nffgs/r:nffg/r:node/r:link" />
-      <xs:field xpath="@dstNode" />
-    </xs:keyref>
-    <xs:keyref name="nodeKeyref" refer="nodeKey">
-      <xs:selector xpath="r:hosts/r:host/r:nodeRef" />
-      <xs:field xpath="@name" />
-    </xs:keyref>
-    <xs:keyref name="host1Keyref" refer="hostKey">
-      <xs:selector xpath="r:connections/r:connection" />
-      <xs:field xpath="@host1" />
-    </xs:keyref>
-    <xs:keyref name="host2Keyref" refer="hostKey">
-      <xs:selector xpath="r:connections/r:connection" />
-      <xs:field xpath="@host2" />
-    </xs:keyref>
-  </xs:element>
-  
-  <xs:complexType name="nfvType">
-    <xs:sequence>
-      <xs:element name="catalog" type="catalogType" />
-      <xs:element name="nffgs" type="nffgsType" />
-      <xs:element name="hosts" type="hostsType" />
-      <xs:element name="connections" type="connectionsType" />
-    </xs:sequence>
-  </xs:complexType>
+  <xs:element name="catalog" type="catalogType" />
+  <xs:element name="nffgs" type="nffgsType" />
+  <xs:element name="hosts" type="hostsType" />
+  <xs:element name="connections" type="connectionsType" />
+  <xs:element name="nodes" type="nodesType" />
+  <xs:element name="links" type="linksType" />
   
   <xs:complexType name="catalogType">
     <xs:sequence>
-      <xs:element name="vnf" type="vnfType" minOccurs="1" maxOccurs="unbounded" />
+      <xs:element ref="vnf" minOccurs="1" maxOccurs="unbounded" />
     </xs:sequence>
   </xs:complexType>
+  
+  <xs:element name="vnf" type="vnfType" />
   
   <xs:complexType name="vnfType">
     <xs:attribute name="name" type="nameType" use="required" />
@@ -87,31 +44,37 @@
   
   <xs:complexType name="nffgsType">
     <xs:sequence>
-      <xs:element name="nffg" type="nffgType" minOccurs="0" maxOccurs="unbounded">
-        <xs:key name="linkKey">
-          <xs:selector xpath="r:node/r:link" />
-          <xs:field xpath="@name" />
-        </xs:key>
-      </xs:element>
+      <xs:element ref="nffg" minOccurs="0" maxOccurs="unbounded" />
     </xs:sequence>
   </xs:complexType>
   
+  <xs:element name="nffg" type="nffgType">
+    <xs:key name="linkKey">
+      <xs:selector xpath="r:node/r:link" />
+      <xs:field xpath="@name" />
+    </xs:key>
+  </xs:element>
+  
   <xs:complexType name="nffgType">
     <xs:sequence>
-      <xs:element name="node" type="nodeType" minOccurs="1" maxOccurs="unbounded" />
+      <xs:element ref="node" minOccurs="0" maxOccurs="unbounded" />
     </xs:sequence>
     <xs:attribute name="name" type="nameType" use="required" />
     <xs:attribute name="deployTime" type="xs:dateTime" use="required" />
   </xs:complexType>
   
+  <xs:element name="node" type="nodeType" />
+  
   <xs:complexType name="nodeType">
     <xs:sequence>
-      <xs:element name="link" type="linkType" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element ref="link" minOccurs="0" maxOccurs="unbounded" />
     </xs:sequence>
     <xs:attribute name="name" type="nameType" use="required" />
     <xs:attribute name="vnfRef" type="xs:string" use="required" />
     <xs:attribute name="hostRef" type="xs:string" />
   </xs:complexType>
+  
+  <xs:element name="link" type="linkType" />
   
   <xs:complexType name="linkType">
     <xs:attribute name="name" type="nameType" use="required" />
@@ -122,13 +85,15 @@
   
   <xs:complexType name="hostsType">
     <xs:sequence>
-      <xs:element name="host" type="hostType" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element ref="host" minOccurs="0" maxOccurs="unbounded" />
     </xs:sequence>
   </xs:complexType>
   
+  <xs:element name="host" type="hostType" />
+  
   <xs:complexType name="hostType">
     <xs:sequence>
-		<xs:element name="nodeRef" type="nodeRefType" minOccurs="0" maxOccurs="unbounded" /> 
+		<xs:element name="nodeRef" type="nodeRefType" minOccurs="0" maxOccurs="unbounded" />
     </xs:sequence>
     <xs:attribute name="name" type="nameType" use="required" />
     <xs:attribute name="maxVnfs" type="nonNegativeInt" use="required" />
@@ -142,15 +107,29 @@
   
   <xs:complexType name="connectionsType">
     <xs:sequence>
-      <xs:element name="connection" type="connectionType" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element ref="connection" minOccurs="0" maxOccurs="unbounded" />
     </xs:sequence>
   </xs:complexType>
+  
+  <xs:element name="connection" type="connectionType" />
   
   <xs:complexType name="connectionType">
     <xs:attribute name="host1" type="xs:string" use="required" />
     <xs:attribute name="host2" type="xs:string" use="required" />
     <xs:attribute name="throughput" type="nonNegativeFloat" use="required" />
     <xs:attribute name="latency" type="nonNegativeInt" use="required" />
+  </xs:complexType>
+  
+  <xs:complexType name="nodesType">
+    <xs:sequence>
+      <xs:element ref="node" minOccurs="0" maxOccurs="unbounded" />
+    </xs:sequence>
+  </xs:complexType>
+  
+  <xs:complexType name="linksType">
+    <xs:sequence>
+      <xs:element ref="link" minOccurs="0" maxOccurs="unbounded" />
+    </xs:sequence>
   </xs:complexType>
   
   <xs:simpleType name="nameType">
