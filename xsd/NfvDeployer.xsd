@@ -48,12 +48,7 @@
     </xs:sequence>
   </xs:complexType>
   
-  <xs:element name="nffg" type="nffgType">
-    <xs:key name="linkKey">
-      <xs:selector xpath="r:node/r:link" />
-      <xs:field xpath="@name" />
-    </xs:key>
-  </xs:element>
+  <xs:element name="nffg" type="nffgType" />
   
   <xs:complexType name="nffgType">
     <xs:sequence>
