@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project basedir="." name="NFV-SOL3">
+	<description>
+			Script for NFV Assignment 3 (Service and Clients compile)
+	</description>
+	
+	<!-- The location to be used for class files -->
+	<property name="build.dir" location="${basedir}/build" />
+	<!-- The location for source files -->
+	<property name="src.dir" location="${basedir}/src" />
+	<!-- The location for generated artifacts -->
+	<property name="gen.dir" location="${basedir}/gen-src" />
+	<!-- The location for jar files -->
+	<property name="lib.dir" location="${basedir}/lib" />
+	<!-- The location for custom files -->
+	<property name="custom.dir" location="${basedir}/custom" />
+	<!-- The location for xsd files -->
+	<property name="xsd.dir" location="${basedir}/xsd" />
+	<!-- The location for documentation files -->
+	<property name="doc.dir" location="${basedir}/doc" />
+	
+	<!-- The classpath to be used for compilation of the solution -->
+	<path id="sol.classpath">
+		<fileset dir="${lib.dir}">
+		    <include name="*.jar" />
+		</fileset>
+		<fileset dir="${ext.lib.dir}">
+		    <include name="*.jar" />
+			<exclude name="ant-*.jar"/>
+		</fileset>
+	</path>
+	
+	<!-- Create artifacts directory -->
+	<target name="init">
+		<mkdir dir="${gen.dir}" />
+	</target>
+	
+	<!-- Target generate-artifacts for Neo4JSimpleXML -->
+	<target name="generate-artifacts">
+		<exec executable="xjc" failonerror="true" >
+			<arg value="-d" />
+			<arg value="${gen.dir}" />
+			<arg value="-p" />
+			<arg value="it.polito.dp2.NFV.sol3.neo4j" />
+			<arg value="${custom.dir}/Neo4JSimpleXML.xsd" />
+		</exec>
+	</target>
+	
+	<!-- Target generate-bindings for NfvDeployer.xsd -->
+	<target name="generate-bindings">
+		<exec executable="xjc" failonerror="true" >
+			<arg value="-d" />
+			<arg value="${gen.dir}" />
+			<arg value="-p" />
+			<arg value="it.polito.dp2.NFV.sol3.jaxb" />
+			<arg value="${xsd.dir}/NfvDeployer.xsd" />
+		</exec>
+	</target>
+	
+	<!-- Target build-service -->
+	<target name="build-service" depends="init,generate-artifacts,generate-bindings">
+		<echo>Building service...</echo>
+		<javac destdir="${build.dir}" debug="${debug}" debuglevel="${debuglevel}" source="${source}" target="${target}" includeantruntime="false">
+			<src path="${src.dir}"/>
+			<src path="${gen.dir}"/>
+			<include name="it/polito/dp2/NFV/sol3/service/**" />
+			<include name="it/polito/dp2/NFV/sol3/neo4j/**" />
+			<include name="it/polito/dp2/NFV/sol3/jaxb/**" />
+			<classpath>
+				<path refid="sol.classpath" />
+			</classpath>
+		</javac>
+		<echo>Done.</echo>
+	</target>
+	
+	<!-- Target for cleaning artifacts -->
+	<target name="clean-artifacts">
+		<delete dir="${gen.dir}" />
+	</target>
+
+</project>

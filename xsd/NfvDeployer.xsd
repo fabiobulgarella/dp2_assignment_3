@@ -6,19 +6,24 @@
            elementFormDefault="qualified">
   
   <xs:element name="catalog" type="catalogType" />
+  <xs:element name="vnf" type="vnfType" />
   <xs:element name="nffgs" type="nffgsType" />
-  <xs:element name="hosts" type="hostsType" />
-  <xs:element name="connections" type="connectionsType" />
+  <xs:element name="nffg" type="nffgType" />
   <xs:element name="nodes" type="nodesType" />
+  <xs:element name="node" type="nodeType" />
   <xs:element name="links" type="linksType" />
+  <xs:element name="link" type="linkType" />
+  <xs:element name="hosts" type="hostsType" />
+  <xs:element name="reachableHosts" type="reachableHostsType" />
+  <xs:element name="host" type="hostType" />
+  <xs:element name="connections" type="connectionsType" />
+  <xs:element name="connection" type="connectionType" />
   
   <xs:complexType name="catalogType">
     <xs:sequence>
       <xs:element ref="vnf" minOccurs="1" maxOccurs="unbounded" />
     </xs:sequence>
   </xs:complexType>
-  
-  <xs:element name="vnf" type="vnfType" />
   
   <xs:complexType name="vnfType">
     <xs:attribute name="name" type="nameType" use="required" />
@@ -48,8 +53,6 @@
     </xs:sequence>
   </xs:complexType>
   
-  <xs:element name="nffg" type="nffgType" />
-  
   <xs:complexType name="nffgType">
     <xs:sequence>
       <xs:element ref="node" minOccurs="0" maxOccurs="unbounded" />
@@ -58,7 +61,11 @@
     <xs:attribute name="deployTime" type="xs:dateTime" use="required" />
   </xs:complexType>
   
-  <xs:element name="node" type="nodeType" />
+  <xs:complexType name="nodesType">
+    <xs:sequence>
+      <xs:element ref="node" minOccurs="0" maxOccurs="unbounded" />
+    </xs:sequence>
+  </xs:complexType>
   
   <xs:complexType name="nodeType">
     <xs:sequence>
@@ -69,7 +76,11 @@
     <xs:attribute name="hostRef" type="xs:string" />
   </xs:complexType>
   
-  <xs:element name="link" type="linkType" />
+  <xs:complexType name="linksType">
+    <xs:sequence>
+      <xs:element ref="link" minOccurs="0" maxOccurs="unbounded" />
+    </xs:sequence>
+  </xs:complexType>
   
   <xs:complexType name="linkType">
     <xs:attribute name="name" type="nameType" use="required" />
@@ -84,7 +95,11 @@
     </xs:sequence>
   </xs:complexType>
   
-  <xs:element name="host" type="hostType" />
+  <xs:complexType name="reachableHostsType">
+    <xs:sequence>
+      <xs:element ref="host" minOccurs="0" maxOccurs="unbounded" />
+    </xs:sequence>
+  </xs:complexType>
   
   <xs:complexType name="hostType">
     <xs:sequence>
@@ -106,25 +121,11 @@
     </xs:sequence>
   </xs:complexType>
   
-  <xs:element name="connection" type="connectionType" />
-  
   <xs:complexType name="connectionType">
     <xs:attribute name="host1" type="xs:string" use="required" />
     <xs:attribute name="host2" type="xs:string" use="required" />
     <xs:attribute name="throughput" type="nonNegativeFloat" use="required" />
     <xs:attribute name="latency" type="nonNegativeInt" use="required" />
-  </xs:complexType>
-  
-  <xs:complexType name="nodesType">
-    <xs:sequence>
-      <xs:element ref="node" minOccurs="0" maxOccurs="unbounded" />
-    </xs:sequence>
-  </xs:complexType>
-  
-  <xs:complexType name="linksType">
-    <xs:sequence>
-      <xs:element ref="link" minOccurs="0" maxOccurs="unbounded" />
-    </xs:sequence>
   </xs:complexType>
   
   <xs:simpleType name="nameType">
