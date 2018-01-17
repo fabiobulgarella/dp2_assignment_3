@@ -5,8 +5,6 @@ import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-
 import javax.ws.rs.InternalServerErrorException;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
@@ -40,6 +38,7 @@ public class NfvDeployerInit
 	private static Map<String, NffgType> nffgMap = NfvDeployerDB.getNffgMap();
 	private static Map<String, List<NodeType>> nodeListMap = NfvDeployerDB.getNodeListMap();
 	private static Map<String, NodeType> nodeMap = NfvDeployerDB.getNodeMap();
+	private static Map<String, List<LinkType>> linkListMap = NfvDeployerDB.getLinkListMap();
 	private static Map<String, HostType> hostMap = NfvDeployerDB.getHostMap();
 	private static Map<String, ConnectionType> connectionMap = NfvDeployerDB.getConnectionMap();
 	
@@ -175,6 +174,7 @@ public class NfvDeployerInit
 			
 			// Get related links
 			Set<LinkReader> linkSet = nr.getLinks();
+			List<LinkType> linkList = new ArrayList<LinkType>();
 			
 			for (LinkReader lr: linkSet)
 			{
@@ -186,16 +186,21 @@ public class NfvDeployerInit
 				link.setMaxLatency( lr.getLatency() );
 				
 				// Add generated link to links list
-				node.getLink().add(link);
+				linkList.add(link);
 			}
 			
-			// Add generated node to nodes list and to nodeMap
+			// Add generated linkList to linkListMap
+			linkListMap.put(nr.getName(), linkList);
+			
+			// Add generated node to nodeList and to nodeMap
 			nodeList.add(node);
 			nodeMap.put(nr.getName(), node);
 		}
 		
-		// Add generated nffg to nffgMap
+		// Add generated nodeList to nodeListMap
 		nodeListMap.put(nffg_r.getName(), nodeList);
+		
+		// Add generated nffg to nffgMap
 		nffgMap.put(nffg_r.getName(), nffg);
 	}
 	
