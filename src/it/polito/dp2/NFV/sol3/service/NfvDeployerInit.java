@@ -1,8 +1,12 @@
 package it.polito.dp2.NFV.sol3.service;
 
+import java.util.ArrayList;
 import java.util.GregorianCalendar;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+
 import javax.ws.rs.InternalServerErrorException;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
@@ -34,6 +38,7 @@ public class NfvDeployerInit
 	// DB -> concurrent maps
 	private static Map<String, VnfType> vnfMap = NfvDeployerDB.getVnfMap();
 	private static Map<String, NffgType> nffgMap = NfvDeployerDB.getNffgMap();
+	private static Map<String, List<NodeType>> nodeListMap = NfvDeployerDB.getNodeListMap();
 	private static Map<String, NodeType> nodeMap = NfvDeployerDB.getNodeMap();
 	private static Map<String, HostType> hostMap = NfvDeployerDB.getHostMap();
 	private static Map<String, ConnectionType> connectionMap = NfvDeployerDB.getConnectionMap();
@@ -158,6 +163,7 @@ public class NfvDeployerInit
 
 		// Get nodes
 		Set<NodeReader> nodeSet = nffg_r.getNodes();
+		List<NodeType> nodeList = new ArrayList<NodeType>();
 		
 		for (NodeReader nr: nodeSet)
 		{
@@ -183,12 +189,13 @@ public class NfvDeployerInit
 				node.getLink().add(link);
 			}
 			
-			// Add generated node to nodes list an to nodeMap
-			nffg.getNode().add(node);
+			// Add generated node to nodes list and to nodeMap
+			nodeList.add(node);
 			nodeMap.put(nr.getName(), node);
 		}
 		
 		// Add generated nffg to nffgMap
+		nodeListMap.put(nffg_r.getName(), nodeList);
 		nffgMap.put(nffg_r.getName(), nffg);
 	}
 	

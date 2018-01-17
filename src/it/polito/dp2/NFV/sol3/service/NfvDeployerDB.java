@@ -1,5 +1,6 @@
 package it.polito.dp2.NFV.sol3.service;
 
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -13,6 +14,7 @@ public class NfvDeployerDB
 {
 	private static Map<String, VnfType> vnfMap = new ConcurrentHashMap<String, VnfType>();
 	private static Map<String, NffgType> nffgMap = new ConcurrentHashMap<String, NffgType>();
+	private static Map<String, List<NodeType>> nodeListMap = new ConcurrentHashMap<String, List<NodeType>>();
 	private static Map<String, NodeType> nodeMap = new ConcurrentHashMap<String, NodeType>();
 	private static Map<String, HostType> hostMap = new ConcurrentHashMap<String, HostType>();
 	private static Map<String, ConnectionType> connectionMap = new ConcurrentHashMap<String, ConnectionType>();
@@ -25,6 +27,11 @@ public class NfvDeployerDB
 	public static Map<String, NffgType> getNffgMap()
 	{
 		return nffgMap;
+	}
+	
+	public static Map<String, List<NodeType>> getNodeListMap()
+	{
+		return nodeListMap;
 	}
 	
 	public static Map<String, NodeType> getNodeMap()
