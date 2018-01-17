@@ -1,12 +1,23 @@
 package it.polito.dp2.NFV.sol3.service;
 
+import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+import javax.xml.bind.JAXBElement;
 
-import io.swagger.annotations.Api;
+import it.polito.dp2.NFV.sol3.jaxb.CatalogType;
 
 @Path("/catalog")
-@Api(value = "/catalog", description = "a collection of vnf objects")
 public class CatalogResource
 {
+	// Instantiate NffgsService in charge of execute all needed operations
+	private NfvDeployerService nfvService = NfvDeployerService.getInstance();
 	
+	@GET
+	@Produces(MediaType.APPLICATION_XML)
+	public JAXBElement<CatalogType> getCatalog()
+	{
+		return nfvService.getCatalog();
+    }
 }

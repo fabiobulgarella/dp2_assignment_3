@@ -1,12 +1,39 @@
 package it.polito.dp2.NFV.sol3.service;
 
+import javax.ws.rs.GET;
+import javax.ws.rs.NotFoundException;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+import javax.xml.bind.JAXBElement;
 
-import io.swagger.annotations.Api;
+import it.polito.dp2.NFV.sol3.jaxb.HostType;
+import it.polito.dp2.NFV.sol3.jaxb.HostsType;
 
 @Path("/hosts")
-@Api(value = "/hosts", description = "a collection of host objects")
 public class HostsResource
 {
+	// Instantiate NffgsService in charge of execute all needed operations
+	private NfvDeployerService nfvService = NfvDeployerService.getInstance();
 	
+	@GET
+	@Produces(MediaType.APPLICATION_XML)
+	public JAXBElement<HostsType> getHosts()
+	{
+		return nfvService.getHosts();
+    }
+	
+	@GET
+	@Path("{id}")
+	@Produces(MediaType.APPLICATION_XML)
+	public JAXBElement<HostType> getHost(@PathParam("id") String id)
+	{
+		JAXBElement<HostType> host = nfvService.getHost(id);
+		
+		if (host == null)
+			throw new NotFoundException();
+		
+		return host;
+    }
 }

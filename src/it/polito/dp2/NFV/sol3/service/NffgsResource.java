@@ -1,39 +1,56 @@
 package it.polito.dp2.NFV.sol3.service;
 
-import java.util.Set;
-
+import java.util.GregorianCalendar;
 import javax.ws.rs.GET;
-import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import javax.xml.bind.JAXBElement;
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeFactory;
 import it.polito.dp2.NFV.sol3.jaxb.NffgType;
+import it.polito.dp2.NFV.sol3.jaxb.NffgsType;
+import it.polito.dp2.NFV.sol3.jaxb.ObjectFactory;
 
 @Path("/nffgs")
-@Api(value = "/nffgs", description = "a collection of nffg objects")
 public class NffgsResource
 {
 	// Instantiate NffgsService in charge of execute all needed operations
-	NfvDeployerService nfvService = new NfvDeployerService();
+	private NfvDeployerService nfvService = NfvDeployerService.getInstance();
 	
-	// GET list of Nffg objects
 	@GET
-	@ApiOperation(value = "get list of Nffg objects ", notes = "text plain format")
-	@ApiResponses(value = { @ApiResponse(code = 200, message = "OK"), @ApiResponse(code = 404, message = "Not Found"), @ApiResponse(code = 500, message = "Internal Server Error") })
 	@Produces(MediaType.APPLICATION_XML)
-	public Set<NffgType> getNffg()
+	public JAXBElement<NffgsType> getNffgs()
 	{
+		NffgsType nffgs = new NffgsType();
+		NffgType nffg = new NffgType();
+		nffg.setName("Test1");
 		try {
-			Set<NffgType> nffg_list = nfvService.getNffgs();
-			return nffg_list;
+			nffg.setDeployTime(DatatypeFactory.newInstance().newXMLGregorianCalendar(new GregorianCalendar()));
 		}
-		catch (Exception e) {
-			throw new InternalServerErrorException();
+		catch (DatatypeConfigurationException e) {
+			e.printStackTrace();
 		}
-	}
+		nffgs.getNffg().add(nffg);
+		
+		return new ObjectFactory().createNffgs(nffgs);
+    }
+	
+	@GET
+	@Path("{id}")
+	@Produces(MediaType.APPLICATION_XML)
+	public JAXBElement<NffgType> getNffg(@PathParam("id") String id)
+	{
+		NffgType nffg = new NffgType();
+		nffg.setName(id);
+		try {
+			nffg.setDeployTime(DatatypeFactory.newInstance().newXMLGregorianCalendar(new GregorianCalendar()));
+		}
+		catch (DatatypeConfigurationException e) {
+			e.printStackTrace();
+		}
+		
+		return new ObjectFactory().createNffg(nffg);
+    }
 }
