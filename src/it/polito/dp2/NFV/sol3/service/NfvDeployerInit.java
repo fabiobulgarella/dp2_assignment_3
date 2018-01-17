@@ -1,18 +1,27 @@
 package it.polito.dp2.NFV.sol3.service;
 
+import java.util.GregorianCalendar;
 import java.util.Map;
 import java.util.Set;
-
 import javax.ws.rs.InternalServerErrorException;
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.XMLGregorianCalendar;
 
 import it.polito.dp2.NFV.ConnectionPerformanceReader;
 import it.polito.dp2.NFV.HostReader;
+import it.polito.dp2.NFV.LinkReader;
+import it.polito.dp2.NFV.NffgReader;
 import it.polito.dp2.NFV.NfvReader;
 import it.polito.dp2.NFV.NfvReaderException;
 import it.polito.dp2.NFV.NfvReaderFactory;
+import it.polito.dp2.NFV.NodeReader;
 import it.polito.dp2.NFV.VNFTypeReader;
 import it.polito.dp2.NFV.sol3.jaxb.ConnectionType;
 import it.polito.dp2.NFV.sol3.jaxb.HostType;
+import it.polito.dp2.NFV.sol3.jaxb.LinkType;
+import it.polito.dp2.NFV.sol3.jaxb.NffgType;
+import it.polito.dp2.NFV.sol3.jaxb.NodeType;
 import it.polito.dp2.NFV.sol3.jaxb.ObjectFactory;
 import it.polito.dp2.NFV.sol3.jaxb.VnfType;
 
@@ -24,6 +33,8 @@ public class NfvDeployerInit
 	
 	// DB -> concurrent maps
 	private static Map<String, VnfType> vnfMap = NfvDeployerDB.getVnfMap();
+	private static Map<String, NffgType> nffgMap = NfvDeployerDB.getNffgMap();
+	private static Map<String, NodeType> nodeMap = NfvDeployerDB.getNodeMap();
 	private static Map<String, HostType> hostMap = NfvDeployerDB.getHostMap();
 	private static Map<String, ConnectionType> connectionMap = NfvDeployerDB.getConnectionMap();
 	
@@ -50,6 +61,7 @@ public class NfvDeployerInit
 			initCatalog();
 			initHosts();
 			initConnections();
+			initNffg0();
 			
 			toBootstrap = false;
 		}
@@ -121,6 +133,63 @@ public class NfvDeployerInit
 				connectionMap.put(sri.getName() + srj.getName(), connection);
 			}
 		}		
+	}
+	
+	private static void initNffg0()
+	{
+		// Get Nffg0
+		NffgReader nffg_r = monitor.getNffg("Nffg0");
+	
+		// Create a new nffg object
+		NffgType nffg = objFactory.createNffgType();
+		nffg.setName( nffg_r.getName() );
+		
+		// Retrieve and convert date
+		GregorianCalendar deployTime = (GregorianCalendar) nffg_r.getDeployTime();
+		XMLGregorianCalendar convertedTime = null;
+		try {
+			convertedTime = DatatypeFactory.newInstance().newXMLGregorianCalendar(deployTime);
+		}
+		catch (DatatypeConfigurationException dce) {
+			System.err.println("Error while converting date to XML format");
+			throw new InternalServerErrorException();
+		}
+		nffg.setDeployTime(convertedTime);
+
+		// Get nodes
+		Set<NodeReader> nodeSet = nffg_r.getNodes();
+		
+		for (NodeReader nr: nodeSet)
+		{
+			// Create a new node object
+			NodeType node = objFactory.createNodeType();
+			node.setName( nr.getName() );
+			node.setVnfRef( nr.getFuncType().getName() );
+			node.setHostRef( nr.getHost().getName() );
+			
+			// Get related links
+			Set<LinkReader> linkSet = nr.getLinks();
+			
+			for (LinkReader lr: linkSet)
+			{
+				// Create a new link object
+				LinkType link = objFactory.createLinkType();
+				link.setName( lr.getName() );
+				link.setDstNode( lr.getDestinationNode().getName() );
+				link.setMinThroughput( lr.getThroughput() );
+				link.setMaxLatency( lr.getLatency() );
+				
+				// Add generated link to links list
+				node.getLink().add(link);
+			}
+			
+			// Add generated node to nodes list an to nodeMap
+			nffg.getNode().add(node);
+			nodeMap.put(nr.getName(), node);
+		}
+		
+		// Add generated nffg to nffgMap
+		nffgMap.put(nffg_r.getName(), nffg);
 	}
 	
 }

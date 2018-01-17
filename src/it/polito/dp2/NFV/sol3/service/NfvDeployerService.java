@@ -1,9 +1,6 @@
 package it.polito.dp2.NFV.sol3.service;
 
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
-
 import javax.xml.bind.JAXBElement;
 
 import it.polito.dp2.NFV.sol3.jaxb.CatalogType;
@@ -11,6 +8,7 @@ import it.polito.dp2.NFV.sol3.jaxb.ConnectionType;
 import it.polito.dp2.NFV.sol3.jaxb.HostType;
 import it.polito.dp2.NFV.sol3.jaxb.HostsType;
 import it.polito.dp2.NFV.sol3.jaxb.NffgType;
+import it.polito.dp2.NFV.sol3.jaxb.NffgsType;
 import it.polito.dp2.NFV.sol3.jaxb.ObjectFactory;
 import it.polito.dp2.NFV.sol3.jaxb.VnfType;
 
@@ -21,6 +19,7 @@ public class NfvDeployerService
 	
 	// DB -> concurrent maps
 	private Map<String, VnfType> vnfMap = NfvDeployerDB.getVnfMap();
+	private Map<String, NffgType> nffgMap = NfvDeployerDB.getNffgMap();
 	private Map<String, HostType> hostMap = NfvDeployerDB.getHostMap();
 	private Map<String, ConnectionType> connectionMap = NfvDeployerDB.getConnectionMap();
 	
@@ -63,16 +62,26 @@ public class NfvDeployerService
 	/*
 	 * NFFGS METHODS
 	 */
-	public Set<NffgType> getNffgs()
+	public JAXBElement<NffgsType> getNffgs()
 	{
-		Set<NffgType> nffgSet = new HashSet<>();
-		return nffgSet;
+		NffgsType nffgs = objFactory.createNffgsType();
+		
+		for (NffgType nffg: nffgMap.values())
+		{
+			nffgs.getNffg().add(nffg);
+		}
+		
+		return objFactory.createNffgs(nffgs);
 	}
 	
-	public Set<NffgType> getNffg()
+	public JAXBElement<NffgType> getNffg(String id)
 	{
-		Set<NffgType> nffgSet = new HashSet<>();
-		return nffgSet;
+		NffgType nffg = nffgMap.get(id);
+		
+		if (nffg != null)
+			return objFactory.createNffg(nffg);
+		
+		return null;
 	}
 	
 	/*
@@ -93,6 +102,7 @@ public class NfvDeployerService
 	public JAXBElement<HostType> getHost(String id)
 	{
 		HostType host = hostMap.get(id);
+		
 		if (host != null)
 			return objFactory.createHost(host);
 		
