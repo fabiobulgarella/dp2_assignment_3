@@ -5,6 +5,8 @@ import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+
 import javax.ws.rs.InternalServerErrorException;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
@@ -23,6 +25,7 @@ import it.polito.dp2.NFV.sol3.jaxb.ConnectionType;
 import it.polito.dp2.NFV.sol3.jaxb.HostType;
 import it.polito.dp2.NFV.sol3.jaxb.LinkType;
 import it.polito.dp2.NFV.sol3.jaxb.NffgType;
+import it.polito.dp2.NFV.sol3.jaxb.NodeRefType;
 import it.polito.dp2.NFV.sol3.jaxb.NodeType;
 import it.polito.dp2.NFV.sol3.jaxb.ObjectFactory;
 import it.polito.dp2.NFV.sol3.jaxb.VnfType;
@@ -40,6 +43,7 @@ public class NfvDeployerInit
 	private static Map<String, NodeType> nodeMap = NfvDeployerDB.getNodeMap();
 	private static Map<String, List<LinkType>> linkListMap = NfvDeployerDB.getLinkListMap();
 	private static Map<String, HostType> hostMap = NfvDeployerDB.getHostMap();
+	private static Map<String, List<NodeRefType>> nodeRefListMap = NfvDeployerDB.getNodeRefListMap();
 	private static Map<String, ConnectionType> connectionMap = NfvDeployerDB.getConnectionMap();
 	
 	// Make this entire class static
@@ -98,6 +102,10 @@ public class NfvDeployerInit
 		// Get the list of Hosts
 		Set<HostReader> set = monitor.getHosts();
 		
+		// Prepare hostsStatusMap and hostNameList structures
+		Map<String, HostsStatus> hostsStatusMap = new ConcurrentHashMap<String, HostsStatus>();
+		List<String> hostNameList = new ArrayList<String>();
+		
 		// For each Host get related data
 		for (HostReader host_r: set)
 		{
@@ -110,7 +118,22 @@ public class NfvDeployerInit
 			
 			// Add generated host to hosts map
 			hostMap.put(host_r.getName(), host);
+			
+			// Update hostsStatusMap
+			HostsStatus hs = new HostsStatus(host_r.getName(), host_r.getMaxVNFs(), host_r.getAvailableMemory(), host_r.getAvailableStorage());
+			hostsStatusMap.put(host_r.getName(), hs);
+			
+			// Update hostNameList
+			hostNameList.add(host_r.getName());
+			
+			// Create an empty nodeRefList
+			List<NodeRefType> nodeRefList = new ArrayList<NodeRefType>();
+			nodeRefListMap.put(host_r.getName(), nodeRefList);
 		}
+		
+		// Save hostResources and hostNameList structures
+		NfvDeployerDB.setHostsStatusMap(hostsStatusMap);
+		NfvDeployerDB.setHostNameList(hostNameList);
 	}
 	
 	// Initialize connections map
@@ -147,24 +170,9 @@ public class NfvDeployerInit
 		// Create a new nffg object
 		NffgType nffg = objFactory.createNffgType();
 		nffg.setName( nffg_r.getName() );
-		
-		// Retrieve and convert date
-		GregorianCalendar deployTime = (GregorianCalendar) nffg_r.getDeployTime();
-		XMLGregorianCalendar convertedTime = null;
-		try {
-			convertedTime = DatatypeFactory.newInstance().newXMLGregorianCalendar(deployTime);
-		}
-		catch (DatatypeConfigurationException dce) {
-			System.err.println("Error while converting date to XML format");
-			throw new InternalServerErrorException();
-		}
-		nffg.setDeployTime(convertedTime);
 
 		// Get nodes
-		Set<NodeReader> nodeSet = nffg_r.getNodes();
-		List<NodeType> nodeList = new ArrayList<NodeType>();
-		
-		for (NodeReader nr: nodeSet)
+		for (NodeReader nr: nffg_r.getNodes())
 		{
 			// Create a new node object
 			NodeType node = objFactory.createNodeType();
@@ -173,10 +181,7 @@ public class NfvDeployerInit
 			node.setHostRef( nr.getHost().getName() );
 			
 			// Get related links
-			Set<LinkReader> linkSet = nr.getLinks();
-			List<LinkType> linkList = new ArrayList<LinkType>();
-			
-			for (LinkReader lr: linkSet)
+			for (LinkReader lr: nr.getLinks())
 			{
 				// Create a new link object
 				LinkType link = objFactory.createLinkType();
@@ -186,22 +191,15 @@ public class NfvDeployerInit
 				link.setMaxLatency( lr.getLatency() );
 				
 				// Add generated link to links list
-				linkList.add(link);
+				node.getLink().add(link);
 			}
 			
-			// Add generated linkList to linkListMap
-			linkListMap.put(nr.getName(), linkList);
-			
-			// Add generated node to nodeList and to nodeMap
-			nodeList.add(node);
-			nodeMap.put(nr.getName(), node);
+			// Add generated node to nodes list
+			nffg.getNode().add(node);
 		}
 		
-		// Add generated nodeList to nodeListMap
-		nodeListMap.put(nffg_r.getName(), nodeList);
-		
-		// Add generated nffg to nffgMap
-		nffgMap.put(nffg_r.getName(), nffg);
+		// Save NffgType Object of Nffg0 for consequent deploy
+		NfvDeployerDB.nffg0 = nffg;
 	}
 	
 }

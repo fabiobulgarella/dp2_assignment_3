@@ -1,8 +1,11 @@
 package it.polito.dp2.NFV.sol3.service;
 
+import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
+import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.GET;
 import javax.ws.rs.NotFoundException;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -12,6 +15,7 @@ import javax.ws.rs.core.Response;
 import javax.xml.bind.JAXBElement;
 import it.polito.dp2.NFV.sol3.jaxb.NffgType;
 import it.polito.dp2.NFV.sol3.jaxb.NffgsType;
+import it.polito.dp2.NFV.sol3.jaxb.NodeType;
 
 @Path("/nffgs")
 public class NffgsResource
@@ -37,6 +41,31 @@ public class NffgsResource
 			throw new NotFoundException();
 		
 		return nffg;
+    }
+	
+	@GET
+	@Path("{id}/nodes/{id2}")
+	@Produces(MediaType.APPLICATION_XML)
+	public JAXBElement<NodeType> getNode(@PathParam("id") String id, @PathParam("id2") String id2)
+	{
+		JAXBElement<NodeType> node = nfvService.getNode(id, id2);
+		
+		if (node == null)
+			throw new NotFoundException();
+		
+		return node;
+    }
+	
+	@POST
+	@Consumes(MediaType.APPLICATION_XML)
+	public JAXBElement<NffgType> postNffg(NffgType nffg)
+	{
+		JAXBElement<NffgType> nffgRes = nfvService.postNffg(nffg);
+		
+		if (nffgRes == null)
+			throw new ForbiddenException();
+		
+		return nffgRes;
     }
 	
 	@DELETE
