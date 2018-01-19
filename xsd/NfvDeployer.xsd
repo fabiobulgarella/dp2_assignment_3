@@ -87,6 +87,7 @@
     <xs:attribute name="dstNode" type="xs:string" use="required" />
     <xs:attribute name="minThroughput" type="nonNegativeFloat" />
     <xs:attribute name="maxLatency" type="nonNegativeInt" />
+    <xs:attribute name="overwrite" type="xs:boolean" />
   </xs:complexType>
   
   <xs:complexType name="hostsType">

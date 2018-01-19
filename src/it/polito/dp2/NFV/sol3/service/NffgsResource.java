@@ -1,5 +1,6 @@
 package it.polito.dp2.NFV.sol3.service;
 
+import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.ForbiddenException;
@@ -13,6 +14,8 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.xml.bind.JAXBElement;
+
+import it.polito.dp2.NFV.sol3.jaxb.LinkType;
 import it.polito.dp2.NFV.sol3.jaxb.NffgType;
 import it.polito.dp2.NFV.sol3.jaxb.NffgsType;
 import it.polito.dp2.NFV.sol3.jaxb.NodeType;
@@ -58,14 +61,70 @@ public class NffgsResource
 	
 	@POST
 	@Consumes(MediaType.APPLICATION_XML)
-	public JAXBElement<NffgType> postNffg(NffgType nffg)
+	public JAXBElement<NffgType> postNffg(JAXBElement<NffgType> nffgElement)
 	{
+		NffgType nffg;
+		
+		if (nffgElement == null)
+			throw new BadRequestException();
+		
+		if ( !(nffgElement.getValue() instanceof NffgType) )
+			throw new BadRequestException();
+		
+		nffg = nffgElement.getValue();
+		
 		JAXBElement<NffgType> nffgRes = nfvService.postNffg(nffg);
 		
 		if (nffgRes == null)
 			throw new ForbiddenException();
 		
 		return nffgRes;
+    }
+	
+	@POST
+	@Path("{nffgName}/nodes")
+	@Consumes(MediaType.APPLICATION_XML)
+	public Response postNode(@PathParam("nffgName") String nffgName, JAXBElement<NodeType> nodeElement)
+	{
+		NodeType node;
+		
+		if (nodeElement == null)
+			throw new BadRequestException();
+		
+		if ( !(nodeElement.getValue() instanceof NodeType) )
+			throw new BadRequestException("Inviare un nodo e non un Nffg, grazie.");
+		
+		node = nodeElement.getValue();
+		
+		boolean result = nfvService.postNode(nffgName, node);
+		
+		if (!result)
+			throw new ForbiddenException();
+		
+		return Response.ok().build();
+    }
+	
+	@POST
+	@Path("{nffgName}/nodes/{nodeName}/links")
+	@Consumes(MediaType.APPLICATION_XML)
+	public Response postLink(@PathParam("nffgName") String nffgName, @PathParam("nodeName") String nodeName, JAXBElement<LinkType> linkElement)
+	{
+		LinkType link;
+		
+		if (linkElement == null)
+			throw new BadRequestException();
+		
+		if ( !(linkElement.getValue() instanceof LinkType) )
+			throw new BadRequestException("Inviare un nodo e non un Nffg, grazie.");
+		
+		link = linkElement.getValue();
+		
+		boolean result = nfvService.postLink(nffgName, nodeName, link);
+		
+		if (!result)
+			throw new ForbiddenException();
+		
+		return Response.ok().build();
     }
 	
 	@DELETE

@@ -288,6 +288,100 @@ public class NfvDeployerService
 		
 		return objFactory.createNffg(newNffg);
 	}
+	
+	public synchronized boolean postNode(String nffgName, NodeType node)
+	{
+		// Check if related nffg is deployed
+		if ( !isDeployed(nffgName) )
+			return false;
+		
+		// Temporary Maps
+		Map<String, NodeType> nodeMapTMP = new HashMap<>();
+		Map<String, List<LinkType>> linkListMapTMP = new HashMap<>();
+		
+		// Get a copy of hostsStatusMap
+		Map<String, HostsStatus> hostsStatusMap = NfvDeployerDB.copyHostsStatusMap();
+		
+		// Check if exists a node with the same name into the system, if yes abort
+		if (nodeMap.get(node.getName()) != null)
+			return false;
+		
+		// Create a new node object
+		NodeType newNode = objFactory.createNodeType();
+		newNode.setName( node.getName() );
+		newNode.setVnfRef( node.getVnfRef() );
+		newNode.setHostRef( node.getHostRef() );
+		
+		// Add generated node to nodeMapTMP
+		nodeMapTMP.put(node.getName(), newNode);
+		
+		// Check if nodes can be allocated into the IN system
+		if ( !checkNodesAllocation(nodeMapTMP, hostsStatusMap) )
+			return false;
+		
+		// NEO4J CALLS		
+		try {
+			// Load nodes into neo4j graph (Type "Node")
+			loadNodes("Node", nodeMapTMP);
+			
+			// Get links and create relationships
+			loadRelationships("ForwardsTo", nodeMapTMP, linkListMapTMP);
+			
+			// Load hosts into neo4j graph (Type "Host")
+			loadNodes("Host", nodeMapTMP);
+			
+			// Create relationship between nodes and hosts
+			loadRelationships("AllocatedOn", nodeMapTMP, linkListMapTMP);
+		}
+		catch (ServiceException se) {
+			return false;
+		}
+		
+		// Update nodeRefLists
+		NodeRefType nodeRef = objFactory.createNodeRefType();
+		nodeRef.setName(newNode.getName());
+		nodeRefListMap.get(newNode.getHostRef()).add(nodeRef);
+		
+		// If all it's ok, update data maps
+		nodeListMap.get(nffgName).add(newNode);
+		nodeMap.put(newNode.getName(), newNode);
+		NfvDeployerDB.setHostsStatusMap(hostsStatusMap);
+		
+		return true;
+	}
+	
+	public synchronized boolean postLink(String nffgName, String nodeName, LinkType link)
+	{
+		// Check if related nffg is deployed
+		if ( !isDeployed(nffgName) )
+			return false;
+		
+		// Check if node exists and belongs to nffg specified
+		NodeType srcNode = nodeMap.get(nodeName);
+		if ( srcNode == null || !nodeListMap.get(nffgName).contains(srcNode) )
+			return false;
+		
+		// Check if destination node exists and belongs to nffg specified
+		NodeType dstNode = nodeMap.get( link.getDstNode() );
+		if ( dstNode == null || !nodeListMap.get(nffgName).contains(dstNode) )
+			return false;
+		
+		// Check if overwrite attribute is set
+		if (link.isOverwrite() != null && link.isOverwrite())
+		{
+			System.out.println("*******************************");
+			System.out.println("****** Overwrite settato ******");
+			System.out.println("*******************************");
+		}
+		else
+		{
+			System.out.println("***********************************");
+			System.out.println("****** Overwrite NON settato ******");
+			System.out.println("***********************************");
+		}
+		
+		return true;
+	}
 
 	/*
 	 * HOSTS METHODS
