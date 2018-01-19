@@ -1,17 +1,12 @@
 package it.polito.dp2.NFV.sol3.service;
 
 import java.util.ArrayList;
-import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.ws.rs.InternalServerErrorException;
-import javax.xml.datatype.DatatypeConfigurationException;
-import javax.xml.datatype.DatatypeFactory;
-import javax.xml.datatype.XMLGregorianCalendar;
-
 import it.polito.dp2.NFV.ConnectionPerformanceReader;
 import it.polito.dp2.NFV.HostReader;
 import it.polito.dp2.NFV.LinkReader;
@@ -32,51 +27,50 @@ import it.polito.dp2.NFV.sol3.jaxb.VnfType;
 
 public class NfvDeployerInit
 {
-	private static boolean toBootstrap = true;
-	private static NfvReader monitor;
-	private static ObjectFactory objFactory;
+	private NfvReader monitor;
+	private ObjectFactory objFactory;
 	
 	// DB -> concurrent maps
-	private static Map<String, VnfType> vnfMap = NfvDeployerDB.getVnfMap();
-	private static Map<String, NffgType> nffgMap = NfvDeployerDB.getNffgMap();
-	private static Map<String, List<NodeType>> nodeListMap = NfvDeployerDB.getNodeListMap();
-	private static Map<String, NodeType> nodeMap = NfvDeployerDB.getNodeMap();
-	private static Map<String, List<LinkType>> linkListMap = NfvDeployerDB.getLinkListMap();
-	private static Map<String, HostType> hostMap = NfvDeployerDB.getHostMap();
-	private static Map<String, List<NodeRefType>> nodeRefListMap = NfvDeployerDB.getNodeRefListMap();
-	private static Map<String, ConnectionType> connectionMap = NfvDeployerDB.getConnectionMap();
+	private Map<String, VnfType> vnfMap;
+	private Map<String, HostType> hostMap;
+	private Map<String, List<NodeRefType>> nodeRefListMap;
+	private Map<String, ConnectionType> connectionMap;
 	
-	// Make this entire class static
-	private NfvDeployerInit() {}
+	// Class constructor
+	protected NfvDeployerInit()
+	{
+		this.vnfMap = NfvDeployerDB.getVnfMap();
+		this.hostMap = NfvDeployerDB.getHostMap();
+		this.nodeRefListMap = NfvDeployerDB.getNodeRefListMap();
+		this.connectionMap = NfvDeployerDB.getConnectionMap();
+	}
 	
 	// Execute bootstrap
-	public static synchronized void bootstrap()
+	protected NffgType bootstrap()
 	{
 		// Initialize NfvDeployer if not already done
-		if (toBootstrap)
-		{
-			NfvReaderFactory factory = NfvReaderFactory.newInstance();
-			try {
-				monitor = factory.newNfvReader();
-			}
-			catch (NfvReaderException e) {
-				System.err.println("Error during initialization of NfvDeployer -> NfvReaderException");
-				throw new InternalServerErrorException();
-			}
-			
-			objFactory = new ObjectFactory();
-			
-			initCatalog();
-			initHosts();
-			initConnections();
-			initNffg0();
-			
-			toBootstrap = false;
+		NfvReaderFactory factory = NfvReaderFactory.newInstance();
+		try {
+			monitor = factory.newNfvReader();
 		}
+		catch (NfvReaderException e) {
+			System.err.println("Error during initialization of NfvDeployer -> NfvReaderException");
+			throw new InternalServerErrorException();
+		}
+		
+		objFactory = new ObjectFactory();
+		
+		initCatalog();
+		initHosts();
+		initConnections();
+		
+		NffgType nffg0 = initNffg0();
+		
+		return nffg0;
 	}
 	
 	// Initialize catalog map
-	private static void initCatalog()
+	private void initCatalog()
 	{
 		// Get the list of vnf
 		Set<VNFTypeReader> set = monitor.getVNFCatalog();
@@ -97,7 +91,7 @@ public class NfvDeployerInit
 	}
 	
 	// Initialize hosts map
-	private static void initHosts()
+	private void initHosts()
 	{
 		// Get the list of Hosts
 		Set<HostReader> set = monitor.getHosts();
@@ -137,7 +131,7 @@ public class NfvDeployerInit
 	}
 	
 	// Initialize connections map
-	private static void initConnections()
+	private void initConnections()
 	{
 		// Get the list of Hosts
 		Set<HostReader> set = monitor.getHosts();
@@ -162,7 +156,7 @@ public class NfvDeployerInit
 		}		
 	}
 	
-	private static void initNffg0()
+	private NffgType initNffg0()
 	{
 		// Get Nffg0
 		NffgReader nffg_r = monitor.getNffg("Nffg0");
@@ -198,8 +192,8 @@ public class NfvDeployerInit
 			nffg.getNode().add(node);
 		}
 		
-		// Save NffgType Object of Nffg0 for consequent deploy
-		NfvDeployerDB.nffg0 = nffg;
+		// Return NffgType Object of Nffg0 for consequent deploy
+		return nffg;
 	}
 	
 }

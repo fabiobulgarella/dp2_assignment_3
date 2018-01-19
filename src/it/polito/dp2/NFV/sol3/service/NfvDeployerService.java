@@ -5,21 +5,19 @@ import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-
-import javax.ws.rs.BadRequestException;
 import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.ProcessingException;
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.xml.bind.JAXBElement;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 
-import it.polito.dp2.NFV.LinkReader;
-import it.polito.dp2.NFV.NodeReader;
 import it.polito.dp2.NFV.lab3.ServiceException;
 import it.polito.dp2.NFV.sol3.jaxb.CatalogType;
 import it.polito.dp2.NFV.sol3.jaxb.ConnectionType;
@@ -36,12 +34,14 @@ import it.polito.dp2.NFV.sol3.neo4j.Labels;
 import it.polito.dp2.NFV.sol3.neo4j.Node;
 import it.polito.dp2.NFV.sol3.neo4j.Properties;
 import it.polito.dp2.NFV.sol3.neo4j.Property;
+import it.polito.dp2.NFV.sol3.neo4j.Relationship;
 
 public class NfvDeployerService
 {
 	private static NfvDeployerService instance = null;
 	private ObjectFactory objFactory;
 	private it.polito.dp2.NFV.sol3.neo4j.ObjectFactory neo4jFactory;
+	private WebTarget target;
 	private String neo4jURL;
 	
 	// DB -> concurrent maps
@@ -54,6 +54,9 @@ public class NfvDeployerService
 	private Map<String, List<NodeRefType>> nodeRefListMap = NfvDeployerDB.getNodeRefListMap();
 	private Map<String, ConnectionType> connectionMap = NfvDeployerDB.getConnectionMap();
 	
+	private Map<String, String> nodeIdMap = NfvDeployerDB.getNodeIdMap();
+	private Map<String, String> hostIdMap = NfvDeployerDB.getHostIdMap();
+	
 	// Class constructor
 	private NfvDeployerService()
 	{
@@ -62,16 +65,26 @@ public class NfvDeployerService
 		neo4jFactory = new it.polito.dp2.NFV.sol3.neo4j.ObjectFactory();
 		
 		// Initialize NfvDeployer
-		NfvDeployerInit.bootstrap();
-		
-		// Deploy Nffg0
-		if ( postNffg(NfvDeployerDB.nffg0) == null )
-			throw new InternalServerErrorException();
+		NfvDeployerInit nfvInit = new NfvDeployerInit();
+		NffgType nffg0 = nfvInit.bootstrap();
 		
 		// Read Neo4JSimpleXML url
 		neo4jURL = System.getProperty("it.polito.dp2.NFV.lab3.Neo4JSimpleXMLURL");
 		if (neo4jURL == null)
 			neo4jURL = "http://localhost:8080/Neo4JSimpleXML/rest";
+		
+		// Create JAX-RS Client and WebTarget
+		Client client = ClientBuilder.newClient();
+		try {
+			target = client.target(neo4jURL);
+		}
+		catch (IllegalArgumentException iae) {
+			throw new InternalServerErrorException();
+		}
+		
+		// Deploy Nffg0
+		if ( postNffg(nffg0) == null )
+			throw new InternalServerErrorException();
 	}
 	
 	// Singleton instance method
@@ -231,9 +244,23 @@ public class NfvDeployerService
 		if ( !checkNodesAllocation(nodeMapTMP, hostsStatusMap) )
 			return null;
 		
-		////////////////////////////////
-		// TO BE FILLED WITH NEO4J CALLS
-		////////////////////////////////
+		// NEO4J CALLS		
+		try {
+			// Load nodes into neo4j graph (Type "Node")
+			loadNodes("Node", nodeMapTMP);
+			
+			// Get links and create relationships
+			loadRelationships("ForwardsTo", nodeMapTMP, linkListMapTMP);
+			
+			// Load hosts into neo4j graph (Type "Host")
+			loadNodes("Host", nodeMapTMP);
+			
+			// Create relationship between nodes and hosts
+			loadRelationships("AllocatedOn", nodeMapTMP, linkListMapTMP);
+		}
+		catch (ServiceException se) {
+			return null;
+		}
 		
 		// Update nodeRefLists
 		for (NodeType node: nodeMapTMP.values())
@@ -394,35 +421,34 @@ public class NfvDeployerService
 	/*
 	 * NEO4J INTERACTION METHODS
 	 */
-	/*
-	private void loadNodes(String type) throws ServiceException
+	private void loadNodes(String type, Map<String, NodeType> nodeMapTMP) throws ServiceException
 	{
-		for (NodeReader node_r: nffg_r.getNodes())
+		for (NodeType node: nodeMapTMP.values())
 		{
 			String nodeName;
-			HostReader host_r;
+			HostType host;
 			
 			// Type is Node
 			if (type.equals("Node"))
 			{
 				// Get nodeName (nffg-node)
-				nodeName = node_r.getName();
+				nodeName = node.getName();
 			}
 			
 			// Type is Host
 			else
 			{
-				host_r = node_r.getHost();
+				host = hostMap.get( node.getHostRef() );
 				
 				// Check if node is not allocated on a host
-				if (host_r == null) continue;
+				if (host == null) continue;
 				
 				// Get hostName
-				nodeName = host_r.getName();
+				nodeName = host.getName();
 				
 				// Check if host has been already uploaded on neo4j
-				if (hostMap.get(nodeName) != null) continue;
-			}	
+				if (hostIdMap.get(nodeName) != null) continue;
+			}
 			
 			// Create a new node object
 			Node newNode = neo4jFactory.createNode();
@@ -443,7 +469,7 @@ public class NfvDeployerService
 						         .request(MediaType.APPLICATION_XML)
 						         .post(Entity.entity(newNode, MediaType.APPLICATION_XML), Node.class);
 				
-				Response res2 = target.path("data/node/" + res.id + "/labels")
+				Response res2 = target.path("data/node/" + res.getId() + "/labels")
 						              .request(MediaType.APPLICATION_XML)
 						              .post(Entity.entity(newLabels, MediaType.APPLICATION_XML));
 				
@@ -452,9 +478,9 @@ public class NfvDeployerService
 					throw new WebApplicationException();
 				
 				if (type.equals("Node"))
-					nodeMap.put(nodeName, res.getId());
+					nodeIdMap.put(nodeName, res.getId());
 				else
-					hostMap.put(nodeName, res.getId());
+					hostIdMap.put(nodeName, res.getId());
 			}
 			catch (ProcessingException pe) {
 				throw new ServiceException("Error during JAX-RS request processing", pe);
@@ -467,6 +493,79 @@ public class NfvDeployerService
 			}
 		}
 	}
-	*/
+	
+	private void loadRelationships(String type, Map<String, NodeType> nodeMapTMP, Map<String, List<LinkType>> linkListMapTMP) throws ServiceException
+	{
+		// Type is ForwardsTo
+		if (type.equals("ForwardsTo"))
+		{			
+			for (NodeType node: nodeMapTMP.values())
+			{
+				List<LinkType> linkList = linkListMapTMP.get(node.getName());
+				
+				if (linkList != null)
+				{
+					for (LinkType link: linkList)
+						postRelationships(type, node, link);
+				}
+			}
+		}
+		
+		// Type is AllocatedOn
+		else
+		{
+			for (NodeType node: nodeMapTMP.values())
+				postRelationships(type, node, null);
+		}
+	}
+	
+	private void postRelationships(String type, NodeType node, LinkType link) throws ServiceException
+	{
+		HostType host;
+		
+		// Retrieve source and destination node id from nodeMap
+		String srcNodeID = nodeIdMap.get( node.getName() );
+		String dstNodeID;
+		
+		// Type is ForwardsTo
+		if (type.equals("ForwardsTo"))
+		{
+			// Get dstNodeID relatively to a node
+			dstNodeID = nodeIdMap.get( link.getDstNode() );
+		}
+		
+		// Type is AllocatedOn
+		else
+		{
+			host = hostMap.get( node.getHostRef() );
+			
+			// Check if there's no host that allocates the node
+			if (host == null) return;
+			
+			// Get dstNodeID relatively to an host
+			dstNodeID = hostIdMap.get( host.getName() );
+		}
+		
+		// Create a new relationship object
+		Relationship newRelationship = neo4jFactory.createRelationship();
+		newRelationship.setDstNode(dstNodeID);
+		newRelationship.setType(type);
+		
+		// Call Neo4JSimpleXML API
+		try {
+			Relationship res = target.path("data/node/" + srcNodeID + "/relationships")
+					                 .request(MediaType.APPLICATION_XML)
+					                 .post(Entity.entity(newRelationship, MediaType.APPLICATION_XML), Relationship.class);
+		}
+		catch (ProcessingException pe) {
+			throw new ServiceException("Error during JAX-RS request processing", pe);
+		}
+		catch (WebApplicationException wae) {
+			throw new ServiceException("Server returned error", wae);
+		}
+		catch (Exception e) {
+			throw new ServiceException("Unexpected exception", e);
+		}
+	}
 	
 }
