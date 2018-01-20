@@ -15,7 +15,8 @@ import it.polito.dp2.NFV.sol3.jaxb.NodeType;
 import it.polito.dp2.NFV.sol3.jaxb.VnfType;
 
 public class NfvDeployerDB
-{	
+{
+	private static long nextNffg = 0;
 	private static List<String> hostNameList = new ArrayList<String>();
 	private static Map<String, HostsStatus> hostsStatusMap = new ConcurrentHashMap<String, HostsStatus>();
 	
@@ -31,6 +32,11 @@ public class NfvDeployerDB
 	
 	private static Map<String, String> nodeIdMap = new ConcurrentHashMap<String, String>();
 	private static Map<String, String> hostIdMap = new ConcurrentHashMap<String, String>();
+	
+	public static synchronized long getNextNffg()
+	{
+		return nextNffg++;
+	}
 	
 	public static Map<String, VnfType> getVnfMap()
 	{

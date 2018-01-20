@@ -9,8 +9,13 @@ public class NfvClientFactory extends it.polito.dp2.NFV.lab3.NfvClientFactory
 	@Override
 	public NfvClient newNfvClient() throws NfvClientException
 	{
-		// TODO Auto-generated method stub
-		return null;
+		// Read Web Service URL
+		String serviceURL = System.getProperty("it.polito.dp2.NFV.lab3.URL");
+		
+		if (serviceURL == null)
+			serviceURL = "http://localhost:8080/NfvDeployer/rest/";
+		
+		return new MyNfvClient(serviceURL);
 	}
 	
 }

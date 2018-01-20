@@ -5,6 +5,7 @@
            targetNamespace="http://www.example.org/nfvInfo"
            elementFormDefault="qualified">
   
+  <xs:element name="nfv" type="nfvType" />
   <xs:element name="catalog" type="catalogType" />
   <xs:element name="vnf" type="vnfType" />
   <xs:element name="nffgs" type="nffgsType" />
@@ -31,6 +32,15 @@
   <xs:element name="host" type="hostType" />
   <xs:element name="connections" type="connectionsType" />
   <xs:element name="connection" type="connectionType" />
+  
+  <xs:complexType name="nfvType">
+    <xs:sequence>
+      <xs:element ref="catalog" />
+      <xs:element ref="nffgs" />
+      <xs:element ref="hosts" />
+      <xs:element ref="connections" />
+    </xs:sequence>
+  </xs:complexType>
   
   <xs:complexType name="catalogType">
     <xs:sequence>
@@ -70,7 +80,7 @@
     <xs:sequence>
       <xs:element ref="node" minOccurs="0" maxOccurs="unbounded" />
     </xs:sequence>
-    <xs:attribute name="name" type="nameType" use="required" />
+    <xs:attribute name="name" type="nameType" />
     <xs:attribute name="deployTime" type="xs:dateTime" />
   </xs:complexType>
   

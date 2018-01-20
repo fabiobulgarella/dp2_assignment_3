@@ -188,36 +188,63 @@ public class NfvDeployerService
 	
 	public synchronized JAXBElement<NffgType> postNffg(NffgType nffg)
 	{
-		// Check if already deployed
-		if ( isDeployed(nffg.getName()) )
-			return null;
+		String nffgName = nffg.getName();
+		
+		// Check if a new nffgName should be generated
+		if ( nffgName == null || isDeployed(nffgName) )
+		{
+			nffgName = newNffgName();
+		}
 		
 		// Temporary Maps
 		Map<String, NodeType> nodeMapTMP = new HashMap<>();
 		Map<String, List<LinkType>> linkListMapTMP = new HashMap<>();
 		Map<String, LinkType> linkNameMapTMP = new HashMap<>();
 		
+		// Map used for associate oldNodeName to new generated node
+		Map<String, NodeType> oldNameToNewNodeMap = new HashMap<>();
+		
 		// Get a copy of hostsStatusMap
 		Map<String, HostsStatus> hostsStatusMap = NfvDeployerDB.copyHostsStatusMap();
 		
 		// Create a new NffgType
 		NffgType newNffg = objFactory.createNffgType();
-		newNffg.setName( nffg.getName() );
+		newNffg.setName(nffgName);
 		
 		List<NodeType> nodeList = nffg.getNode();
 		List<NodeType> newNodeList = new ArrayList<NodeType>();
 		
 		for (NodeType node: nodeList)
 		{
-			// Check if exists a node with the same name into the system, if yes abort
-			if (nodeMap.get(node.getName()) != null)
-				return null;
+			String oldNodeName = node.getName();
+			String newNodeName;
+			
+			// Create a new name for newNode
+			if ( nffgName.equals("Nffg0") )
+				newNodeName = oldNodeName;
+			else
+				newNodeName = newNodeName(nodeMapTMP, node.getVnfRef(), nffgName);
 			
 			// Create a new node object
 			NodeType newNode = objFactory.createNodeType();
-			newNode.setName( node.getName() );
+			newNode.setName(newNodeName);
 			newNode.setVnfRef( node.getVnfRef() );
 			newNode.setHostRef( node.getHostRef() );
+			
+			// Add generated node to nodeList and to nodeMap
+			newNodeList.add(newNode);
+			nodeMapTMP.put(newNodeName, newNode);
+			
+			// Add generated node to oldNameToNewNodeMap
+			oldNameToNewNodeMap.put(oldNodeName, newNode);			
+		}
+		
+		// Load links into the system
+		long nextLink = 0;
+		for (NodeType node: nodeList)
+		{
+			// Retrieve newNodeName for related node
+			String newNodeName = oldNameToNewNodeMap.get( node.getName() ).getName();
 			
 			// Get related links
 			List<LinkType> linkList = node.getLink();
@@ -225,24 +252,34 @@ public class NfvDeployerService
 			
 			for (LinkType link: linkList)
 			{
+				String newLinkName;
+				
+				// Create a new name for the link
+				if ( nffgName.equals("Nffg0") )
+					newLinkName = link.getName();
+				else
+				{
+					newLinkName = "Link" + nextLink;
+					nextLink++;
+				}
+				
+				// Get new name of destination node
+				String dstNodeName = oldNameToNewNodeMap.get( link.getDstNode() ).getName();
+				
 				// Create a new link object
 				LinkType newLink = objFactory.createLinkType();
-				newLink.setName( link.getName() );
-				newLink.setDstNode( link.getDstNode() );
+				newLink.setName(newLinkName);
+				newLink.setDstNode(dstNodeName);
 				newLink.setMinThroughput( link.getMinThroughput() );
 				newLink.setMaxLatency( link.getMaxLatency() );
 				
 				// Add generated link to links list
 				newLinkList.add(newLink);
-				linkNameMapTMP.put(nffg.getName() + link.getName(), newLink);
+				linkNameMapTMP.put(nffgName + newLinkName, newLink);
 			}
 			
 			// Add generated linkList to linkListMap
-			linkListMapTMP.put(node.getName(), newLinkList);
-			
-			// Add generated node to nodeList and to nodeMap
-			newNodeList.add(newNode);
-			nodeMapTMP.put(node.getName(), newNode);
+			linkListMapTMP.put(newNodeName, newLinkList);
 		}
 		
 		// Check if nodes can be allocated into the IN system
@@ -542,6 +579,30 @@ public class NfvDeployerService
 			return true;
 		
 		return false;
+	}
+	
+	private String newNffgName()
+	{
+		String nffgName;
+		
+		do {
+			nffgName = "Nffg" + NfvDeployerDB.getNextNffg();
+		} while(nffgMap.get(nffgName) != null);
+		
+		return nffgName;
+	}
+	
+	private String newNodeName(Map<String, NodeType> nodeMapTMP, String vnfRef, String nffgName)
+	{
+		String nodeName;
+		long next = 0;
+		
+		do {
+			nodeName = vnfRef + next + nffgName;
+			next++;
+		} while(nodeMapTMP.get(nodeName) != null);
+		
+		return nodeName;
 	}
 	
 	private boolean checkNodesAllocation(Map<String, NodeType> nodeMapTMP, Map<String, HostsStatus> hostsStatusMap)
