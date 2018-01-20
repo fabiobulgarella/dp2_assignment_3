@@ -15,10 +15,12 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.xml.bind.JAXBElement;
 
+import it.polito.dp2.NFV.sol3.jaxb.HostsType;
 import it.polito.dp2.NFV.sol3.jaxb.LinkType;
 import it.polito.dp2.NFV.sol3.jaxb.NffgType;
 import it.polito.dp2.NFV.sol3.jaxb.NffgsType;
 import it.polito.dp2.NFV.sol3.jaxb.NodeType;
+import it.polito.dp2.NFV.sol3.jaxb.NodesType;
 
 @Path("/nffgs")
 public class NffgsResource
@@ -34,11 +36,11 @@ public class NffgsResource
     }
 	
 	@GET
-	@Path("{id}")
+	@Path("{nffgName}")
 	@Produces(MediaType.APPLICATION_XML)
-	public JAXBElement<NffgType> getNffg(@PathParam("id") String id)
+	public JAXBElement<NffgType> getNffg(@PathParam("nffgName") String nffgName)
 	{
-		JAXBElement<NffgType> nffg = nfvService.getNffg(id);
+		JAXBElement<NffgType> nffg = nfvService.getNffg(nffgName);
 		
 		if (nffg == null)
 			throw new NotFoundException();
@@ -47,16 +49,29 @@ public class NffgsResource
     }
 	
 	@GET
-	@Path("{id}/nodes/{id2}")
+	@Path("{nffgName}/nodes/{nodeName}")
 	@Produces(MediaType.APPLICATION_XML)
-	public JAXBElement<NodeType> getNode(@PathParam("id") String id, @PathParam("id2") String id2)
+	public JAXBElement<NodeType> getNode(@PathParam("nffgName") String nffgName, @PathParam("nodeName") String nodeName)
 	{
-		JAXBElement<NodeType> node = nfvService.getNode(id, id2);
+		JAXBElement<NodeType> node = nfvService.getNode(nffgName, nodeName);
 		
 		if (node == null)
 			throw new NotFoundException();
 		
 		return node;
+    }
+	
+	@GET
+	@Path("{nffgName}/nodes/{nodeName}/reachableHosts")
+	@Produces(MediaType.APPLICATION_XML)
+	public JAXBElement<HostsType> getReachableHosts(@PathParam("nffgName") String nffgName, @PathParam("nodeName") String nodeName)
+	{
+		JAXBElement<HostsType> hosts = nfvService.getReachableHosts(nffgName, nodeName);
+		
+		if (hosts == null)
+			throw new NotFoundException();
+		
+		return hosts;
     }
 	
 	@POST
@@ -115,7 +130,7 @@ public class NffgsResource
 			throw new BadRequestException();
 		
 		if ( !(linkElement.getValue() instanceof LinkType) )
-			throw new BadRequestException("Inviare un nodo e non un Nffg, grazie.");
+			throw new BadRequestException();
 		
 		link = linkElement.getValue();
 		
@@ -128,22 +143,22 @@ public class NffgsResource
     }
 	
 	@DELETE
-	@Path("{id}")
-	public void deleteNffg(@PathParam("id") String id)
+	@Path("{nffgName}")
+	public void deleteNffg(@PathParam("nffgName") String nffgName)
 	{
 		throw new WebApplicationException(Response.Status.NOT_IMPLEMENTED);
     }
 	
 	@DELETE
-	@Path("{id}/nodes/{id2}")
-	public void deleteNode(@PathParam("id") String id, @PathParam("id2") String id2)
+	@Path("{nffgName}/nodes/{nodeName}")
+	public void deleteNode(@PathParam("nffgName") String nffgName, @PathParam("nodeName") String nodeName)
 	{
 		throw new WebApplicationException(Response.Status.NOT_IMPLEMENTED);
     }
 	
 	@DELETE
-	@Path("{id}/nodes/{id2}/links/{id3}")
-	public void deleteLink(@PathParam("id") String id, @PathParam("id2") String id2, @PathParam("id3") String id3)
+	@Path("{nffgName}/nodes/{nodeName}/links/{linkName}")
+	public void deleteLink(@PathParam("nffgName") String nffgName, @PathParam("nodeName") String nodeName, @PathParam("linkName") String linkName)
 	{
 		throw new WebApplicationException(Response.Status.NOT_IMPLEMENTED);
     }

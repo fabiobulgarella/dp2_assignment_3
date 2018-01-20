@@ -8,7 +8,20 @@
   <xs:element name="catalog" type="catalogType" />
   <xs:element name="vnf" type="vnfType" />
   <xs:element name="nffgs" type="nffgsType" />
-  <xs:element name="nffg" type="nffgType" />
+  <xs:element name="nffg" type="nffgType">
+    <xs:key name="nodeKey">
+      <xs:selector xpath="r:node" />
+      <xs:field xpath="@name" />
+    </xs:key>
+    <xs:key name="linkKey">
+      <xs:selector xpath="r:node/r:link" />
+      <xs:field xpath="@name" />
+    </xs:key>
+    <xs:keyref name="dstNodeKeyref" refer="nodeKey">
+      <xs:selector xpath="r:node/r:link" />
+      <xs:field xpath="@dstNode" />
+    </xs:keyref>
+  </xs:element>
   <xs:element name="nodes" type="nodesType" />
   <xs:element name="node" type="nodeType" />
   <xs:element name="links" type="linksType" />

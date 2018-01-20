@@ -3,6 +3,7 @@ package it.polito.dp2.NFV.sol3.service;
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import javax.ws.rs.InternalServerErrorException;
@@ -32,6 +33,7 @@ import it.polito.dp2.NFV.sol3.jaxb.ObjectFactory;
 import it.polito.dp2.NFV.sol3.jaxb.VnfType;
 import it.polito.dp2.NFV.sol3.neo4j.Labels;
 import it.polito.dp2.NFV.sol3.neo4j.Node;
+import it.polito.dp2.NFV.sol3.neo4j.Nodes;
 import it.polito.dp2.NFV.sol3.neo4j.Properties;
 import it.polito.dp2.NFV.sol3.neo4j.Property;
 import it.polito.dp2.NFV.sol3.neo4j.Relationship;
@@ -50,6 +52,7 @@ public class NfvDeployerService
 	private Map<String, List<NodeType>> nodeListMap = NfvDeployerDB.getNodeListMap();
 	private Map<String, NodeType> nodeMap = NfvDeployerDB.getNodeMap();
 	private Map<String, List<LinkType>> linkListMap = NfvDeployerDB.getLinkListMap();
+	private Map<String, LinkType> linkNameMap = NfvDeployerDB.getLinkNameMap();
 	private Map<String, HostType> hostMap = NfvDeployerDB.getHostMap();
 	private Map<String, List<NodeRefType>> nodeRefListMap = NfvDeployerDB.getNodeRefListMap();
 	private Map<String, ConnectionType> connectionMap = NfvDeployerDB.getConnectionMap();
@@ -192,6 +195,7 @@ public class NfvDeployerService
 		// Temporary Maps
 		Map<String, NodeType> nodeMapTMP = new HashMap<>();
 		Map<String, List<LinkType>> linkListMapTMP = new HashMap<>();
+		Map<String, LinkType> linkNameMapTMP = new HashMap<>();
 		
 		// Get a copy of hostsStatusMap
 		Map<String, HostsStatus> hostsStatusMap = NfvDeployerDB.copyHostsStatusMap();
@@ -230,6 +234,7 @@ public class NfvDeployerService
 				
 				// Add generated link to links list
 				newLinkList.add(newLink);
+				linkNameMapTMP.put(nffg.getName() + link.getName(), newLink);
 			}
 			
 			// Add generated linkList to linkListMap
@@ -284,6 +289,7 @@ public class NfvDeployerService
 		nodeListMap.put(newNffg.getName(), newNodeList);
 		nodeMap.putAll(nodeMapTMP);
 		linkListMap.putAll(linkListMapTMP);
+		linkNameMap.putAll(linkNameMapTMP);
 		NfvDeployerDB.setHostsStatusMap(hostsStatusMap);
 		
 		return objFactory.createNffg(newNffg);
@@ -350,14 +356,14 @@ public class NfvDeployerService
 		return true;
 	}
 	
-	public synchronized boolean postLink(String nffgName, String nodeName, LinkType link)
+	public synchronized boolean postLink(String nffgName, String srcNodeName, LinkType link)
 	{
 		// Check if related nffg is deployed
 		if ( !isDeployed(nffgName) )
 			return false;
 		
 		// Check if node exists and belongs to nffg specified
-		NodeType srcNode = nodeMap.get(nodeName);
+		NodeType srcNode = nodeMap.get(srcNodeName);
 		if ( srcNode == null || !nodeListMap.get(nffgName).contains(srcNode) )
 			return false;
 		
@@ -366,19 +372,49 @@ public class NfvDeployerService
 		if ( dstNode == null || !nodeListMap.get(nffgName).contains(dstNode) )
 			return false;
 		
-		// Check if overwrite attribute is set
-		if (link.isOverwrite() != null && link.isOverwrite())
+		// Check if already exists this link
+		List<LinkType> linkList = linkListMap.get(srcNodeName);
+		for (LinkType link_t: linkList)
 		{
-			System.out.println("*******************************");
-			System.out.println("****** Overwrite settato ******");
-			System.out.println("*******************************");
+			if ( link_t.getDstNode().equals( link.getDstNode() ) )
+			{
+				// Check if overwrite attribute is set
+				if (link.isOverwrite() != null && link.isOverwrite())
+				{
+					// Overwrite link information
+					link_t.setMinThroughput( link.getMinThroughput() != null ? link.getMinThroughput() : 0 );
+					link_t.setMaxLatency( link.getMaxLatency() != null ? link.getMaxLatency() : 0 );
+					
+					return true;
+				}
+				
+				// If overwrite attribute is not set abort
+				return false;
+			}
 		}
-		else
-		{
-			System.out.println("***********************************");
-			System.out.println("****** Overwrite NON settato ******");
-			System.out.println("***********************************");
+		
+		// If already exists a link with the same name into the specified nffg, abort
+		if ( linkNameMap.get(nffgName + link.getName()) != null )
+			return false;
+		
+		// If not, generate a new link
+		LinkType newLink = objFactory.createLinkType();
+		newLink.setName( link.getName() );
+		newLink.setDstNode( link.getDstNode() );
+		newLink.setMinThroughput( link.getMinThroughput() != null ? link.getMinThroughput() : 0 );
+		newLink.setMaxLatency( link.getMaxLatency() != null ? link.getMaxLatency() : 0 );
+		
+		// Load link into neo4j
+		try {
+			postRelationships("ForwardsTo", srcNode, newLink);
 		}
+		catch (ServiceException se) {
+			return false;
+		}
+		
+		// Update maps
+		linkList.add(newLink);
+		linkNameMap.put(nffgName + newLink.getName(), newLink);
 		
 		return true;
 	}
@@ -423,6 +459,66 @@ public class NfvDeployerService
 		}
 		
 		return null;
+	}
+	
+	public synchronized JAXBElement<HostsType> getReachableHosts(String nffgName, String nodeName)
+	{
+		// Check if related nffg is deployed
+		if ( !isDeployed(nffgName) )
+			return null;
+		
+		// Check if node exists and belongs to nffg specified
+		NodeType node = nodeMap.get(nodeName);
+		if ( node == null || !nodeListMap.get(nffgName).contains(node) )
+			return null;
+		
+		// Get neo4j node ID
+		String nodeID = nodeIdMap.get(nodeName);
+		if (nodeID == null)
+			return null;
+		
+		// Call neo4j in order to obtain reachableNodes list
+		Nodes reachableNodes;
+		try {
+			reachableNodes = getReachableNodes(nodeID);
+		}
+		catch (ServiceException se) {
+			return null;
+		}
+		
+		// Create hosts element and hostNameSet (to keep track of host already added in the list)
+		HostsType newHosts = objFactory.createHostsType();
+		HashSet<String> reachableHostNameSet = new HashSet<String>();
+		
+		// Add host where node is allocated on into the set
+		HostType host = hostMap.get( node.getHostRef() );
+		if (host != null)
+		{
+			newHosts.getHost().add(host);
+			reachableHostNameSet.add( host.getName() );
+		}
+		
+		// Search for reachable hosts
+		for (Node reachNode: reachableNodes.getNode())
+		{
+			String reachNodeName = reachNode.getProperties().getProperty().iterator().next().getValue();
+			
+			// Add reachable host if present AND if not already loaded inside reachableHostSet
+			HostType newReachableHost = hostMap.get( nodeMap.get(reachNodeName).getHostRef() );
+			
+			if (newReachableHost != null)
+			{
+				String newReachableHostName = newReachableHost.getName();
+				
+				if ( !reachableHostNameSet.contains(newReachableHostName) )
+				{
+					newHosts.getHost().add(newReachableHost);
+					reachableHostNameSet.add(newReachableHostName);
+				}
+			}
+		}
+		
+		return objFactory.createHosts(newHosts);
 	}
 	
 	/*
@@ -660,6 +756,32 @@ public class NfvDeployerService
 		catch (Exception e) {
 			throw new ServiceException("Unexpected exception", e);
 		}
+	}
+	
+	private Nodes getReachableNodes(String nodeID) throws ServiceException
+	{
+		// Call Neo4JSimpleXML API
+		Nodes reachableNodes;
+		
+		try {
+			reachableNodes = target.path("data/node/" + nodeID + "/reachableNodes")
+					               .queryParam("relationshipTypes", "ForwardsTo")
+					               .queryParam("nodeLabel", "Node")
+					               .request()
+					               .accept(MediaType.APPLICATION_XML)
+					               .get(Nodes.class);
+		}
+		catch (ProcessingException pe) {
+			throw new ServiceException("Error during JAX-RS request processing", pe);
+		}
+		catch (WebApplicationException wae) {
+			throw new ServiceException("Server returned error", wae);
+		}
+		catch (Exception e) {
+			throw new ServiceException("Unexpected exception", e);
+		}
+		
+		return reachableNodes;
 	}
 	
 }
