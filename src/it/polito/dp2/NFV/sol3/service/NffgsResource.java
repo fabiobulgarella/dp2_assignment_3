@@ -20,7 +20,6 @@ import it.polito.dp2.NFV.sol3.jaxb.LinkType;
 import it.polito.dp2.NFV.sol3.jaxb.NffgType;
 import it.polito.dp2.NFV.sol3.jaxb.NffgsType;
 import it.polito.dp2.NFV.sol3.jaxb.NodeType;
-import it.polito.dp2.NFV.sol3.jaxb.NodesType;
 
 @Path("/nffgs")
 public class NffgsResource
@@ -99,7 +98,7 @@ public class NffgsResource
 	@POST
 	@Path("{nffgName}/nodes")
 	@Consumes(MediaType.APPLICATION_XML)
-	public Response postNode(@PathParam("nffgName") String nffgName, JAXBElement<NodeType> nodeElement)
+	public JAXBElement<NodeType> postNode(@PathParam("nffgName") String nffgName, JAXBElement<NodeType> nodeElement)
 	{
 		NodeType node;
 		
@@ -111,18 +110,18 @@ public class NffgsResource
 		
 		node = nodeElement.getValue();
 		
-		boolean result = nfvService.postNode(nffgName, node);
+		JAXBElement<NodeType> nodeRes = nfvService.postNode(nffgName, node);
 		
-		if (!result)
+		if (nodeRes == null)
 			throw new ForbiddenException();
 		
-		return Response.ok().build();
+		return nodeRes;
     }
 	
 	@POST
 	@Path("{nffgName}/nodes/{nodeName}/links")
 	@Consumes(MediaType.APPLICATION_XML)
-	public Response postLink(@PathParam("nffgName") String nffgName, @PathParam("nodeName") String nodeName, JAXBElement<LinkType> linkElement)
+	public JAXBElement<LinkType> postLink(@PathParam("nffgName") String nffgName, @PathParam("nodeName") String nodeName, JAXBElement<LinkType> linkElement)
 	{
 		LinkType link;
 		
@@ -134,12 +133,12 @@ public class NffgsResource
 		
 		link = linkElement.getValue();
 		
-		boolean result = nfvService.postLink(nffgName, nodeName, link);
+		JAXBElement<LinkType> linkRes = nfvService.postLink(nffgName, nodeName, link);
 		
-		if (!result)
+		if (linkRes == null)
 			throw new ForbiddenException();
 		
-		return Response.ok().build();
+		return linkRes;
     }
 	
 	@DELETE

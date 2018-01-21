@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import javax.ws.rs.NotFoundException;
 import javax.ws.rs.ProcessingException;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.client.Client;
@@ -92,7 +93,7 @@ public class MyNfvClient implements NfvClient
 			nffgType.getNode().add(nodeType);
 		}
 		
-		// Call Neo4JSimpleXML API
+		// Call NfvDeployer REST Web Service
 		NffgType deployedNffg;
 		
 		try {
@@ -116,8 +117,29 @@ public class MyNfvClient implements NfvClient
 	@Override
 	public DeployedNffg getDeployedNffg(String name) throws UnknownEntityException, ServiceException
 	{
+		// Call NfvDeployer REST Web Service
+		NffgType deployedNffg;
 		
-		return null;
+		try {
+			deployedNffg = target.path("nffgs/" + name)
+					             .request()
+					             .accept(MediaType.APPLICATION_XML)
+					             .get(NffgType.class);
+		}
+		catch (ProcessingException pe) {
+			throw new ServiceException("Error during JAX-RS request processing", pe);
+		}
+		catch (NotFoundException nfe) {
+			throw new UnknownEntityException();
+		}
+		catch (WebApplicationException wae) {
+			throw new ServiceException("Server returned error", wae);
+		}
+		catch (Exception e) {
+			throw new ServiceException("Unexpected exception", e);
+		}
+		
+		return new MyDeployedNffg(target, deployedNffg);
 	}
 
 }

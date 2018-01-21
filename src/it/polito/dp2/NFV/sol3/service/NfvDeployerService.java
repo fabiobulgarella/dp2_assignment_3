@@ -309,11 +309,11 @@ public class NfvDeployerService
 		return objFactory.createNffg(newNffg);
 	}
 	
-	public synchronized boolean postNode(String nffgName, NodeType node)
+	public synchronized JAXBElement<NodeType> postNode(String nffgName, NodeType node)
 	{
 		// Check if related nffg is deployed
 		if ( !isDeployed(nffgName) )
-			return false;
+			return null;
 		
 		// Temporary Maps
 		Map<String, NodeType> nodeMapTMP = new HashMap<>();
@@ -336,7 +336,7 @@ public class NfvDeployerService
 		
 		// Check if nodes can be allocated into the IN system
 		if ( !checkNodesAllocation(nodeMapTMP, hostsStatusMap) )
-			return false;
+			return null;
 		
 		// NEO4J CALLS		
 		try {
@@ -350,7 +350,7 @@ public class NfvDeployerService
 			loadRelationships("AllocatedOn", nodeMapTMP, linkListMapTMP);
 		}
 		catch (ServiceException se) {
-			return false;
+			return null;
 		}
 		
 		// Update nodeRefLists
@@ -363,24 +363,24 @@ public class NfvDeployerService
 		nodeMap.put(newNode.getName(), newNode);
 		NfvDeployerDB.setHostsStatusMap(hostsStatusMap);
 		
-		return true;
+		return objFactory.createNode(newNode);
 	}
 	
-	public synchronized boolean postLink(String nffgName, String srcNodeName, LinkType link)
+	public synchronized JAXBElement<LinkType> postLink(String nffgName, String srcNodeName, LinkType link)
 	{
 		// Check if related nffg is deployed
 		if ( !isDeployed(nffgName) )
-			return false;
+			return null;
 		
 		// Check if node exists and belongs to nffg specified
 		NodeType srcNode = nodeMap.get(srcNodeName);
 		if ( srcNode == null || !nodeListMap.get(nffgName).contains(srcNode) )
-			return false;
+			return null;
 		
 		// Check if destination node exists and belongs to nffg specified
 		NodeType dstNode = nodeMap.get( link.getDstNode() );
 		if ( dstNode == null || !nodeListMap.get(nffgName).contains(dstNode) )
-			return false;
+			return null;
 		
 		// Get linkLists (related to srcNode and nffg)
 		List<LinkType> linkList = linkListMap.get(srcNodeName);
@@ -398,11 +398,11 @@ public class NfvDeployerService
 					link_t.setMinThroughput( link.getMinThroughput() != null ? link.getMinThroughput() : 0 );
 					link_t.setMaxLatency( link.getMaxLatency() != null ? link.getMaxLatency() : 0 );
 					
-					return true;
+					return objFactory.createLink(link_t);
 				}
 				
 				// If overwrite attribute is not set abort
-				return false;
+				return null;
 			}
 		}
 		
@@ -421,14 +421,14 @@ public class NfvDeployerService
 			postRelationships("ForwardsTo", srcNode, newLink);
 		}
 		catch (ServiceException se) {
-			return false;
+			return null;
 		}
 		
 		// Update maps
 		linkList.add(newLink);
 		nffgLinkList.add(newLink);
 		
-		return true;
+		return objFactory.createLink(newLink);
 	}
 
 	/*
