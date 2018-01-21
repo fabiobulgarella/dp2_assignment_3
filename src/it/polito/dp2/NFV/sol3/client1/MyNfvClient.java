@@ -29,7 +29,6 @@ import it.polito.dp2.NFV.sol3.jaxb.HostType;
 import it.polito.dp2.NFV.sol3.jaxb.HostsType;
 import it.polito.dp2.NFV.sol3.jaxb.LinkType;
 import it.polito.dp2.NFV.sol3.jaxb.NffgType;
-import it.polito.dp2.NFV.sol3.jaxb.NffgsType;
 import it.polito.dp2.NFV.sol3.jaxb.NfvType;
 import it.polito.dp2.NFV.sol3.jaxb.NodeType;
 import it.polito.dp2.NFV.sol3.jaxb.ObjectFactory;
@@ -61,8 +60,6 @@ public class MyNfvClient implements NfvClient
 		
 		// Build NFV methods
 		nfv.setCatalog( getCatalog() );
-		NffgsType nffgs = objFactory.createNffgsType();
-		nfv.setNffgs(nffgs);
 		nfv.setHosts( getHosts() );
 		nfv.setConnections( getConnections() );
 	}

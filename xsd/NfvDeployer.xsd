@@ -24,7 +24,6 @@
   <xs:element name="links" type="linksType" />
   <xs:element name="link" type="linkType" />
   <xs:element name="hosts" type="hostsType" />
-  <xs:element name="reachableHosts" type="reachableHostsType" />
   <xs:element name="host" type="hostType" />
   <xs:element name="connections" type="connectionsType" />
   <xs:element name="connection" type="connectionType" />
@@ -110,12 +109,6 @@
   </xs:complexType>
   
   <xs:complexType name="hostsType">
-    <xs:sequence>
-      <xs:element ref="host" minOccurs="0" maxOccurs="unbounded" />
-    </xs:sequence>
-  </xs:complexType>
-  
-  <xs:complexType name="reachableHostsType">
     <xs:sequence>
       <xs:element ref="host" minOccurs="0" maxOccurs="unbounded" />
     </xs:sequence>

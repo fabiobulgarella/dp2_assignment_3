@@ -86,9 +86,9 @@ public class NfvReaderFactory extends it.polito.dp2.NFV.NfvReaderFactory
 		
 		try {
 			nffgs = target.path("nffgs")
-					     .request()
-					     .accept(MediaType.APPLICATION_XML)
-					     .get(NffgsType.class);
+					      .request()
+					      .accept(MediaType.APPLICATION_XML)
+					      .get(NffgsType.class);
 		}
 		catch (ProcessingException pe) {
 			throw new NfvReaderException("Error during JAX-RS request processing");

@@ -20,6 +20,7 @@ import it.polito.dp2.NFV.lab3.ServiceException;
 import it.polito.dp2.NFV.sol3.client1.NfvReader.MyNfvReader;
 import it.polito.dp2.NFV.sol3.jaxb.LinkType;
 import it.polito.dp2.NFV.sol3.jaxb.NffgType;
+import it.polito.dp2.NFV.sol3.jaxb.NffgsType;
 import it.polito.dp2.NFV.sol3.jaxb.NfvType;
 import it.polito.dp2.NFV.sol3.jaxb.NodeType;
 import it.polito.dp2.NFV.sol3.jaxb.ObjectFactory;
@@ -120,6 +121,50 @@ public class MyDeployedNffg implements DeployedNffg
 	@Override
 	public NffgReader getReader() throws ServiceException
 	{
+		// Get Nffgs
+		nfv.setNffgs( getNffgs() );
+		
+		// Create NfvReader
+		NfvReader nfv_r = new MyNfvReader(nfv);
+		
+		return nfv_r.getNffg(nffgName);
+	}
+	
+	private NffgsType getNffgs() throws ServiceException
+	{
+		// Call NfvDeployer REST Web Service
+		NffgsType nffgs;
+		
+		try {
+			nffgs = target.path("nffgs")
+					      .request()
+					      .accept(MediaType.APPLICATION_XML)
+					      .get(NffgsType.class);
+		}
+		catch (ProcessingException pe) {
+			throw new ServiceException("Error during JAX-RS request processing", pe);
+		}
+		catch (WebApplicationException wae) {
+			throw new ServiceException("Server returned error", wae);
+		}
+		catch (Exception e) {
+			throw new ServiceException("Unexpected exception", e);
+		}
+		
+		// Create a complete host set (including nodeRefs)
+		NffgsType newNffgs = objFactory.createNffgsType();
+		
+		for (NffgType nffg: nffgs.getNffg())
+		{
+			NffgType newNffg = getNffg( nffg.getName() );
+			newNffgs.getNffg().add(newNffg);
+		}
+		
+		return newNffgs;
+	}
+	
+	private NffgType getNffg(String nffgName) throws ServiceException
+	{
 		// Call NfvDeployer REST Web Service
 		NffgType nffg;
 		
@@ -139,14 +184,7 @@ public class MyDeployedNffg implements DeployedNffg
 			throw new ServiceException("Unexpected exception", e);
 		}
 		
-		// Clean list from previous nffg
-		nfv.getNffgs().getNffg().clear();
-		nfv.getNffgs().getNffg().add(nffg);
-		
-		// Create NfvReader
-		NfvReader nfv_r = new MyNfvReader(nfv);
-		
-		return nfv_r.getNffg(nffgName);
+		return nffg;
 	}
 
 }

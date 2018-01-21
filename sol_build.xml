@@ -20,6 +20,12 @@
 	<!-- The location for documentation files -->
 	<property name="doc.dir" location="${basedir}/doc" />
 	
+	<!-- Java compiler settings -->
+	<property name="debug" value="true" />
+	<property name="debuglevel" value="source,lines,vars" />
+	<property name="target" value="1.8" />
+	<property name="source" value="1.8" />
+	
 	<!-- The classpath to be used for compilation of the solution -->
 	<path id="sol.classpath">
 		<fileset dir="${lib.dir}">
