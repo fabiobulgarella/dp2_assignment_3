@@ -51,8 +51,8 @@ public class NfvDeployerService
 	private Map<String, NffgType> nffgMap = NfvDeployerDB.getNffgMap();
 	private Map<String, List<NodeType>> nodeListMap = NfvDeployerDB.getNodeListMap();
 	private Map<String, NodeType> nodeMap = NfvDeployerDB.getNodeMap();
-	private Map<String, List<LinkType>> linkListMap = NfvDeployerDB.getLinkListMap();
-	private Map<String, LinkType> linkNameMap = NfvDeployerDB.getLinkNameMap();
+	private Map<String, List<LinkType>> linkListMap = NfvDeployerDB.getLinkListMap(); // Maps a link list to a node
+	private Map<String, List<LinkType>> nffgLinkListMap = NfvDeployerDB.getNffgLinkListMap(); // Maps a link list to a nffg
 	private Map<String, HostType> hostMap = NfvDeployerDB.getHostMap();
 	private Map<String, List<NodeRefType>> nodeRefListMap = NfvDeployerDB.getNodeRefListMap();
 	private Map<String, ConnectionType> connectionMap = NfvDeployerDB.getConnectionMap();
@@ -125,63 +125,33 @@ public class NfvDeployerService
 		
 		for (NffgType nffg: nffgMap.values())
 		{
-			nffgs.getNffg().add(nffg);
+			NffgType newNffg = objFactory.createNffgType();
+			newNffg.setName( nffg.getName() );
+			newNffg.setDeployTime( nffg.getDeployTime() );
+			
+			nffgs.getNffg().add(newNffg);
 		}
 		
 		return objFactory.createNffgs(nffgs);
 	}
 	
-	public JAXBElement<NffgType> getNffg(String id)
+	public JAXBElement<NffgType> getNffg(String nffgName)
 	{
-		NffgType nffg = nffgMap.get(id);
-		List<NodeType> nodeList = nodeListMap.get(id);
+		NffgType nffg = nffgMap.get(nffgName);
 		
 		if (nffg != null)
-		{
-			NffgType newNffg = objFactory.createNffgType();
-			newNffg.setName( nffg.getName() );
-			newNffg.setDeployTime( nffg.getDeployTime() );
-			
-			if (nodeList != null)
-			{
-				for (NodeType node: nodeList)
-				{
-					newNffg.getNode().add(node);
-				}
-			}
-			
-			return objFactory.createNffg(newNffg);
-		}
+			return objFactory.createNffg(nffg);
 		
 		return null;
 	}
 	
 	public JAXBElement<NodeType> getNode(String nffgName, String nodeName)
 	{
-		List<NodeType> nodeList = nodeListMap.get(nffgName);
 		NodeType node = nodeMap.get(nodeName);
-		List<LinkType> linkList = linkListMap.get(nodeName);
 		
-		if (nodeList != null && node != null)
-		{
-			if (nodeList.contains(node))
-			{
-				NodeType newNode = objFactory.createNodeType();
-				newNode.setName( node.getName() );
-				newNode.setVnfRef( node.getVnfRef() );
-				newNode.setHostRef( node.getHostRef() );
-				
-				if (linkList != null)
-				{
-					for (LinkType link: linkList)
-					{
-						newNode.getLink().add(link);
-					}
-				}
-				
-				return objFactory.createNode(newNode);
-			}
-		}
+		// Check if node exists and belongs to nffg specified
+		if ( node != null && nodeListMap.get(nffgName).contains(node) )
+			return objFactory.createNode(node);
 		
 		return null;
 	}
@@ -199,7 +169,7 @@ public class NfvDeployerService
 		// Temporary Maps
 		Map<String, NodeType> nodeMapTMP = new HashMap<>();
 		Map<String, List<LinkType>> linkListMapTMP = new HashMap<>();
-		Map<String, LinkType> linkNameMapTMP = new HashMap<>();
+		Map<String, List<LinkType>> nffgLinkListMapTMP = new HashMap<>();
 		
 		// Map used for associate oldNodeName to new generated node
 		Map<String, NodeType> oldNameToNewNodeMap = new HashMap<>();
@@ -211,10 +181,10 @@ public class NfvDeployerService
 		NffgType newNffg = objFactory.createNffgType();
 		newNffg.setName(nffgName);
 		
-		List<NodeType> nodeList = nffg.getNode();
+		// Create a newNodeList related to this Nffg
 		List<NodeType> newNodeList = new ArrayList<NodeType>();
 		
-		for (NodeType node: nodeList)
+		for (NodeType node: nffg.getNode())
 		{
 			String oldNodeName = node.getName();
 			String newNodeName;
@@ -232,6 +202,7 @@ public class NfvDeployerService
 			newNode.setHostRef( node.getHostRef() );
 			
 			// Add generated node to nodeList and to nodeMap
+			newNffg.getNode().add(newNode);
 			newNodeList.add(newNode);
 			nodeMapTMP.put(newNodeName, newNode);
 			
@@ -240,17 +211,19 @@ public class NfvDeployerService
 		}
 		
 		// Load links into the system
+		List<LinkType> newNffgLinkList = new ArrayList<LinkType>();
 		long nextLink = 0;
-		for (NodeType node: nodeList)
+		
+		for (NodeType node: nffg.getNode())
 		{
-			// Retrieve newNodeName for related node
-			String newNodeName = oldNameToNewNodeMap.get( node.getName() ).getName();
+			// Retrieve newNode and newNodeName relative to this node
+			NodeType newNode = oldNameToNewNodeMap.get( node.getName() );
+			String newNodeName = newNode.getName();
 			
 			// Get related links
-			List<LinkType> linkList = node.getLink();
 			List<LinkType> newLinkList = new ArrayList<LinkType>();
 			
-			for (LinkType link: linkList)
+			for (LinkType link: node.getLink())
 			{
 				String newLinkName;
 				
@@ -274,13 +247,17 @@ public class NfvDeployerService
 				newLink.setMaxLatency( link.getMaxLatency() );
 				
 				// Add generated link to links list
+				newNode.getLink().add(newLink);
 				newLinkList.add(newLink);
-				linkNameMapTMP.put(nffgName + newLinkName, newLink);
+				newNffgLinkList.add(newLink);
 			}
 			
 			// Add generated linkList to linkListMap
 			linkListMapTMP.put(newNodeName, newLinkList);
 		}
+		
+		// Add generated nffgLinkList to nffgLinkListMapTMP
+		nffgLinkListMapTMP.put(nffgName, newNffgLinkList);
 		
 		// Check if nodes can be allocated into the IN system
 		if ( !checkNodesAllocation(nodeMapTMP, hostsStatusMap) )
@@ -326,7 +303,7 @@ public class NfvDeployerService
 		nodeListMap.put(newNffg.getName(), newNodeList);
 		nodeMap.putAll(nodeMapTMP);
 		linkListMap.putAll(linkListMapTMP);
-		linkNameMap.putAll(linkNameMapTMP);
+		nffgLinkListMap.putAll(nffgLinkListMapTMP);
 		NfvDeployerDB.setHostsStatusMap(hostsStatusMap);
 		
 		return objFactory.createNffg(newNffg);
@@ -345,13 +322,12 @@ public class NfvDeployerService
 		// Get a copy of hostsStatusMap
 		Map<String, HostsStatus> hostsStatusMap = NfvDeployerDB.copyHostsStatusMap();
 		
-		// Check if exists a node with the same name into the system, if yes abort
-		if (nodeMap.get(node.getName()) != null)
-			return false;
+		// Generate a node name
+		String newNodeName = newNodeName(nodeMap, node.getVnfRef(), nffgName);
 		
 		// Create a new node object
 		NodeType newNode = objFactory.createNodeType();
-		newNode.setName( node.getName() );
+		newNode.setName( newNodeName );
 		newNode.setVnfRef( node.getVnfRef() );
 		newNode.setHostRef( node.getHostRef() );
 		
@@ -366,9 +342,6 @@ public class NfvDeployerService
 		try {
 			// Load nodes into neo4j graph (Type "Node")
 			loadNodes("Node", nodeMapTMP);
-			
-			// Get links and create relationships
-			loadRelationships("ForwardsTo", nodeMapTMP, linkListMapTMP);
 			
 			// Load hosts into neo4j graph (Type "Host")
 			loadNodes("Host", nodeMapTMP);
@@ -409,8 +382,11 @@ public class NfvDeployerService
 		if ( dstNode == null || !nodeListMap.get(nffgName).contains(dstNode) )
 			return false;
 		
-		// Check if already exists this link
+		// Get linkLists (related to srcNode and nffg)
 		List<LinkType> linkList = linkListMap.get(srcNodeName);
+		List<LinkType> nffgLinkList = nffgLinkListMap.get(nffgName);
+		
+		// Check if already exists this link
 		for (LinkType link_t: linkList)
 		{
 			if ( link_t.getDstNode().equals( link.getDstNode() ) )
@@ -430,13 +406,12 @@ public class NfvDeployerService
 			}
 		}
 		
-		// If already exists a link with the same name into the specified nffg, abort
-		if ( linkNameMap.get(nffgName + link.getName()) != null )
-			return false;
+		// Generate a new link name
+		String newLinkName = "Link" + nffgLinkList.size();
 		
 		// If not, generate a new link
 		LinkType newLink = objFactory.createLinkType();
-		newLink.setName( link.getName() );
+		newLink.setName(newLinkName);
 		newLink.setDstNode( link.getDstNode() );
 		newLink.setMinThroughput( link.getMinThroughput() != null ? link.getMinThroughput() : 0 );
 		newLink.setMaxLatency( link.getMaxLatency() != null ? link.getMaxLatency() : 0 );
@@ -451,7 +426,7 @@ public class NfvDeployerService
 		
 		// Update maps
 		linkList.add(newLink);
-		linkNameMap.put(nffgName + newLink.getName(), newLink);
+		nffgLinkList.add(newLink);
 		
 		return true;
 	}

@@ -24,8 +24,8 @@ public class NfvDeployerDB
 	private static Map<String, NffgType> nffgMap = new ConcurrentHashMap<String, NffgType>();
 	private static Map<String, List<NodeType>> nodeListMap = new ConcurrentHashMap<String, List<NodeType>>();
 	private static Map<String, NodeType> nodeMap = new ConcurrentHashMap<String, NodeType>();
-	private static Map<String, List<LinkType>> linkListMap = new ConcurrentHashMap<String, List<LinkType>>();
-	private static Map<String, LinkType> linkNameMap = new ConcurrentHashMap<String, LinkType>();
+	private static Map<String, List<LinkType>> linkListMap = new ConcurrentHashMap<String, List<LinkType>>(); // Maps a link list to a node
+	private static Map<String, List<LinkType>> nffgLinkListMap = new ConcurrentHashMap<String, List<LinkType>>(); // Maps a link list to a nffg
 	private static Map<String, HostType> hostMap = new ConcurrentHashMap<String, HostType>();
 	private static Map<String, List<NodeRefType>> nodeRefListMap = new ConcurrentHashMap<String, List<NodeRefType>>();
 	private static Map<String, ConnectionType> connectionMap = new ConcurrentHashMap<String, ConnectionType>();
@@ -63,9 +63,9 @@ public class NfvDeployerDB
 		return linkListMap;
 	}
 	
-	public static Map<String, LinkType> getLinkNameMap()
+	public static Map<String, List<LinkType>> getNffgLinkListMap()
 	{
-		return linkNameMap;
+		return nffgLinkListMap;
 	}
 	
 	public static Map<String, HostType> getHostMap()

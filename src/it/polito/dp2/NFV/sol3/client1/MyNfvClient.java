@@ -94,6 +94,7 @@ public class MyNfvClient implements NfvClient
 		
 		// Call Neo4JSimpleXML API
 		NffgType deployedNffg;
+		
 		try {
 			deployedNffg = target.path("nffgs")
 			                     .request(MediaType.APPLICATION_XML)
