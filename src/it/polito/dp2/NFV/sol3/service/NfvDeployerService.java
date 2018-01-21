@@ -22,6 +22,7 @@ import javax.xml.datatype.DatatypeFactory;
 import it.polito.dp2.NFV.lab3.ServiceException;
 import it.polito.dp2.NFV.sol3.jaxb.CatalogType;
 import it.polito.dp2.NFV.sol3.jaxb.ConnectionType;
+import it.polito.dp2.NFV.sol3.jaxb.ConnectionsType;
 import it.polito.dp2.NFV.sol3.jaxb.HostType;
 import it.polito.dp2.NFV.sol3.jaxb.HostsType;
 import it.polito.dp2.NFV.sol3.jaxb.LinkType;
@@ -536,6 +537,18 @@ public class NfvDeployerService
 	/*
 	 * CONNECTIONS METHODS
 	 */
+	public JAXBElement<ConnectionsType> getConnections()
+	{
+		ConnectionsType connections = objFactory.createConnectionsType();
+		
+		for (ConnectionType connection: connectionMap.values())
+		{
+			connections.getConnection().add(connection);
+		}
+		
+		return objFactory.createConnections(connections);
+	}
+	
 	public JAXBElement<ConnectionType> getConnection(String host1, String host2)
 	{
 		ConnectionType connection = connectionMap.get(host1 + host2);

@@ -53,7 +53,7 @@ public class MyNfvClient implements NfvClient
 		objFactory = new ObjectFactory();
 		
 		// Instantiate NfvType object
-		nfv = new NfvType();
+		nfv = objFactory.createNfvType();
 		
 		// Build NFV methods
 		nfv.setCatalog( getCatalog() );

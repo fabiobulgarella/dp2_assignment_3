@@ -75,12 +75,13 @@
 	</target>
 	
 	<!-- Target build-service -->
-	<target name="build-client" depends="build-service">
-		<echo>Building client1...</echo>
+	<target name="build-client">
+		<echo>Building clients...</echo>
 		<javac destdir="${build.dir}" debug="${debug}" debuglevel="${debuglevel}" source="${source}" target="${target}" includeantruntime="false">
 			<src path="${src.dir}"/>
 			<src path="${gen.dir}"/>
 			<include name="it/polito/dp2/NFV/sol3/client1/**" />
+			<include name="it/polito/dp2/NFV/sol3/client2/**" />
 			<include name="it/polito/dp2/NFV/sol3/jaxb/**" />
 			<classpath>
 				<path refid="sol.classpath" />

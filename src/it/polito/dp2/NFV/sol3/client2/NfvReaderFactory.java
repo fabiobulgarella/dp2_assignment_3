@@ -1,67 +1,220 @@
 package it.polito.dp2.NFV.sol3.client2;
 
-import java.io.File;
-import javax.xml.XMLConstants;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.UnmarshalException;
-import javax.xml.bind.Unmarshaller;
-import javax.xml.validation.Schema;
-import javax.xml.validation.SchemaFactory;
-
-import org.xml.sax.SAXException;
+import javax.ws.rs.ProcessingException;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.MediaType;
 
 import it.polito.dp2.NFV.NfvReader;
 import it.polito.dp2.NFV.NfvReaderException;
+import it.polito.dp2.NFV.sol3.jaxb.CatalogType;
+import it.polito.dp2.NFV.sol3.jaxb.ConnectionsType;
+import it.polito.dp2.NFV.sol3.jaxb.HostType;
+import it.polito.dp2.NFV.sol3.jaxb.HostsType;
+import it.polito.dp2.NFV.sol3.jaxb.NffgType;
+import it.polito.dp2.NFV.sol3.jaxb.NffgsType;
 import it.polito.dp2.NFV.sol3.jaxb.NfvType;
+import it.polito.dp2.NFV.sol3.jaxb.ObjectFactory;
 
-public class NfvReaderFactory extends it.polito.dp2.NFV.NfvReaderFactory {
+public class NfvReaderFactory extends it.polito.dp2.NFV.NfvReaderFactory
+{
+	private WebTarget target;
+	private ObjectFactory objFactory;
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public NfvReader newNfvReader() throws NfvReaderException
 	{
-		// Create NfvType object that will contain unmarshalled data
-		NfvType nfv;
+		// Read Web Service URL
+		String serviceURL = System.getProperty("it.polito.dp2.NFV.lab3.URL");
+		if (serviceURL == null)
+			serviceURL = "http://localhost:8080/NfvDeployer/rest/";
 		
-		// Read system property containing the name of xml file
-		String fileName = System.getProperty("it.polito.dp2.NFV.sol1.NfvInfo.file");
-		
-		// Check if System Property has been read correctly
-		if (fileName == null)
-		{
-			throw new NfvReaderException("System property \"it.polito.dp2.NFV.sol1.NfvInfo.file\" not found");
-		}
-		
+		// Create JAX-RS Client and WebTarget
+		Client client = ClientBuilder.newClient();
 		try {
-			// Initialize JAXBContext and create unmarshaller
-			JAXBContext jc = JAXBContext.newInstance("it.polito.dp2.NFV.sol1.jaxb");
-			Unmarshaller u = jc.createUnmarshaller();
-			
-			// Set validation wrt schema using default validation handler (rises exception with non-valid files)
-			String xsdPath = "xsd" + File.separator + "nfvInfo.xsd";
-			SchemaFactory sf = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-			Schema schema = sf.newSchema(new File(xsdPath));
-			u.setSchema(schema);
-			
-			// Unmarshal xml file named fileName
-			JAXBElement<NfvType> jaxbNfv = (JAXBElement<NfvType>) u.unmarshal( new File(fileName) );
-			nfv = jaxbNfv.getValue();
+			target = client.target(serviceURL);
 		}
-		catch (UnmarshalException ue) {
-			throw new NfvReaderException(ue, "Caught UnmarshalException");
+		catch (IllegalArgumentException iae) {
+			throw new NfvReaderException(iae, "Url is not a valid URI");
 		}
-		catch (JAXBException je) {
-			throw new NfvReaderException(je, "Error while unmarshalling or marshalling");
-		}
-		catch (SAXException se) {
-			throw new NfvReaderException(se, "Unable to validate file or schema");
-		}
-		catch (Exception e) {
-			throw new NfvReaderException(e, "Unexpected exception");
-		}
+		
+		// Instantiate ObjectFactory
+		objFactory = new ObjectFactory();
+		
+		// Create NfvType object that will contain unmarshalled data
+		NfvType nfv = objFactory.createNfvType();
+		
+		// Build NFV methods
+		nfv.setCatalog( getCatalog() );
+		nfv.setNffgs( getNffgs() );
+		nfv.setHosts( getHosts() );
+		nfv.setConnections( getConnections() );
 		
 		return new MyNfvReader(nfv);
 	}
+
+	private CatalogType getCatalog() throws NfvReaderException
+	{
+		// Call NfvDeployer REST Web Service
+		CatalogType catalog;
+		
+		try {
+			catalog = target.path("catalog")
+					     .request()
+					     .accept(MediaType.APPLICATION_XML)
+					     .get(CatalogType.class);
+		}
+		catch (ProcessingException pe) {
+			throw new NfvReaderException("Error during JAX-RS request processing");
+		}
+		catch (WebApplicationException wae) {
+			throw new NfvReaderException("Server returned error");
+		}
+		catch (Exception e) {
+			throw new NfvReaderException("Unexpected exception");
+		}
+		
+		return catalog;
+	}
+	
+	private NffgsType getNffgs() throws NfvReaderException
+	{
+		// Call NfvDeployer REST Web Service
+		NffgsType nffgs;
+		
+		try {
+			nffgs = target.path("nffgs")
+					     .request()
+					     .accept(MediaType.APPLICATION_XML)
+					     .get(NffgsType.class);
+		}
+		catch (ProcessingException pe) {
+			throw new NfvReaderException("Error during JAX-RS request processing");
+		}
+		catch (WebApplicationException wae) {
+			throw new NfvReaderException("Server returned error");
+		}
+		catch (Exception e) {
+			throw new NfvReaderException("Unexpected exception");
+		}
+		
+		// Create a complete host set (including nodeRefs)
+		NffgsType newNffgs = objFactory.createNffgsType();
+		
+		for (NffgType nffg: nffgs.getNffg())
+		{
+			NffgType newNffg = getNffg( nffg.getName() );
+			newNffgs.getNffg().add(newNffg);
+		}
+		
+		return newNffgs;
+	}
+	
+	private NffgType getNffg(String nffgName) throws NfvReaderException
+	{
+		// Call NfvDeployer REST Web Service
+		NffgType nffg;
+		
+		try {
+			nffg = target.path("nffgs/" + nffgName)
+					     .request()
+					     .accept(MediaType.APPLICATION_XML)
+					     .get(NffgType.class);
+		}
+		catch (ProcessingException pe) {
+			throw new NfvReaderException("Error during JAX-RS request processing");
+		}
+		catch (WebApplicationException wae) {
+			throw new NfvReaderException("Server returned error");
+		}
+		catch (Exception e) {
+			throw new NfvReaderException("Unexpected exception");
+		}
+		
+		return nffg;
+	}
+	
+	private HostsType getHosts() throws NfvReaderException
+	{
+		// Call NfvDeployer REST Web Service
+		HostsType hosts;
+		
+		try {
+			hosts = target.path("hosts")
+					     .request()
+					     .accept(MediaType.APPLICATION_XML)
+					     .get(HostsType.class);
+		}
+		catch (ProcessingException pe) {
+			throw new NfvReaderException("Error during JAX-RS request processing");
+		}
+		catch (WebApplicationException wae) {
+			throw new NfvReaderException("Server returned error");
+		}
+		catch (Exception e) {
+			throw new NfvReaderException("Unexpected exception");
+		}
+		
+		// Create a complete host set (including nodeRefs)
+		HostsType newHosts = objFactory.createHostsType();
+		
+		for (HostType host: hosts.getHost())
+		{
+			HostType newHost = getHost( host.getName() );
+			newHosts.getHost().add(newHost);
+		}
+		
+		return newHosts;
+	}
+	
+	private HostType getHost(String hostName) throws NfvReaderException
+	{
+		// Call NfvDeployer REST Web Service
+		HostType host;
+		
+		try {
+			host = target.path("hosts/" + hostName)
+					     .request()
+					     .accept(MediaType.APPLICATION_XML)
+					     .get(HostType.class);
+		}
+		catch (ProcessingException pe) {
+			throw new NfvReaderException("Error during JAX-RS request processing");
+		}
+		catch (WebApplicationException wae) {
+			throw new NfvReaderException("Server returned error");
+		}
+		catch (Exception e) {
+			throw new NfvReaderException("Unexpected exception");
+		}
+		
+		return host;
+	}
+	
+	private ConnectionsType getConnections() throws NfvReaderException
+	{
+		// Call NfvDeployer REST Web Service
+		ConnectionsType connections;
+		
+		try {
+			connections = target.path("connections")
+					            .request()
+					            .accept(MediaType.APPLICATION_XML)
+					            .get(ConnectionsType.class);
+		}
+		catch (ProcessingException pe) {
+			throw new NfvReaderException("Error during JAX-RS request processing");
+		}
+		catch (WebApplicationException wae) {
+			throw new NfvReaderException("Server returned error");
+		}
+		catch (Exception e) {
+			throw new NfvReaderException("Unexpected exception");
+		}
+		
+		return connections;
+	}
+	
 }

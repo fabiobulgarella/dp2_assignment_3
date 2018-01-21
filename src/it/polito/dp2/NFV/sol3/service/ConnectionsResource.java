@@ -8,12 +8,20 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.xml.bind.JAXBElement;
 import it.polito.dp2.NFV.sol3.jaxb.ConnectionType;
+import it.polito.dp2.NFV.sol3.jaxb.ConnectionsType;
 
 @Path("/connections")
 public class ConnectionsResource
 {
 	// Instantiate NffgsService in charge of execute all needed operations
 	private NfvDeployerService nfvService = NfvDeployerService.getInstance();
+	
+	@GET
+	@Produces(MediaType.APPLICATION_XML)
+	public JAXBElement<ConnectionsType> getConnections()
+	{
+		return nfvService.getConnections();
+    }
 	
 	@GET
 	@Path("{host1}/{host2}")
