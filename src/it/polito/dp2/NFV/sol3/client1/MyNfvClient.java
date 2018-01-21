@@ -12,6 +12,7 @@ import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 import it.polito.dp2.NFV.lab3.AllocationException;
 import it.polito.dp2.NFV.lab3.DeployedNffg;
@@ -220,19 +221,20 @@ public class MyNfvClient implements NfvClient
 		// Call NfvDeployer REST Web Service
 		NffgType deployedNffg;
 		
+		Response response = target.path("nffgs")
+				                  .request(MediaType.APPLICATION_XML)
+				                  .post(Entity.entity(objFactory.createNffg(nffgType), MediaType.APPLICATION_XML));
+		
 		try {
-			deployedNffg = target.path("nffgs")
-			                     .request(MediaType.APPLICATION_XML)
-			                     .post(Entity.entity(objFactory.createNffg(nffgType), MediaType.APPLICATION_XML), NffgType.class);
-		}
-		catch (ProcessingException pe) {
-			throw new ServiceException("Error during JAX-RS request processing", pe);
-		}
-		catch (WebApplicationException wae) {
-			throw new ServiceException("Server returned error", wae);
-		}
-		catch (Exception e) {
-			throw new ServiceException("Unexpected exception", e);
+			if (response.getStatus() == 200)
+				deployedNffg = response.readEntity(NffgType.class);
+			else if (response.getStatus() == 409)
+				throw new AllocationException();
+			else
+				throw new ServiceException();
+		} 
+		finally {
+			response.close();
 		}
 		
 		return new MyDeployedNffg(target, nfv, deployedNffg.getName());

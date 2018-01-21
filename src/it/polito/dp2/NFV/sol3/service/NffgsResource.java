@@ -3,8 +3,8 @@ package it.polito.dp2.NFV.sol3.service;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
-import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.GET;
+import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -90,7 +90,7 @@ public class NffgsResource
 		JAXBElement<NffgType> nffgRes = nfvService.postNffg(nffg);
 		
 		if (nffgRes == null)
-			throw new ForbiddenException();
+			throw new InternalServerErrorException();
 		
 		return nffgRes;
     }
@@ -113,7 +113,7 @@ public class NffgsResource
 		JAXBElement<NodeType> nodeRes = nfvService.postNode(nffgName, node);
 		
 		if (nodeRes == null)
-			throw new ForbiddenException();
+			throw new InternalServerErrorException();
 		
 		return nodeRes;
     }
@@ -136,7 +136,7 @@ public class NffgsResource
 		JAXBElement<LinkType> linkRes = nfvService.postLink(nffgName, nodeName, link);
 		
 		if (linkRes == null)
-			throw new ForbiddenException();
+			throw new InternalServerErrorException();
 		
 		return linkRes;
     }

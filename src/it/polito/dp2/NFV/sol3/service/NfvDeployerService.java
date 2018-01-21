@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+
+import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.ProcessingException;
 import javax.ws.rs.WebApplicationException;
@@ -262,7 +264,7 @@ public class NfvDeployerService
 		
 		// Check if nodes can be allocated into the IN system
 		if ( !checkNodesAllocation(nodeMapTMP, hostsStatusMap) )
-			return null;
+			throw new ConflictException();
 		
 		// NEO4J CALLS		
 		try {
@@ -279,7 +281,7 @@ public class NfvDeployerService
 			loadRelationships("AllocatedOn", nodeMapTMP, linkListMapTMP);
 		}
 		catch (ServiceException se) {
-			return null;
+			throw new InternalServerErrorException();
 		}
 		
 		// Update nodeRefLists
@@ -314,7 +316,7 @@ public class NfvDeployerService
 	{
 		// Check if related nffg is deployed
 		if ( !isDeployed(nffgName) )
-			return null;
+			throw new ForbiddenException();
 		
 		// Temporary Maps
 		Map<String, NodeType> nodeMapTMP = new HashMap<>();
@@ -337,7 +339,7 @@ public class NfvDeployerService
 		
 		// Check if nodes can be allocated into the IN system
 		if ( !checkNodesAllocation(nodeMapTMP, hostsStatusMap) )
-			return null;
+			throw new ConflictException();
 		
 		// NEO4J CALLS		
 		try {
@@ -351,7 +353,7 @@ public class NfvDeployerService
 			loadRelationships("AllocatedOn", nodeMapTMP, linkListMapTMP);
 		}
 		catch (ServiceException se) {
-			return null;
+			throw new InternalServerErrorException();
 		}
 		
 		// Update nodeRefLists
@@ -376,17 +378,17 @@ public class NfvDeployerService
 	{
 		// Check if related nffg is deployed
 		if ( !isDeployed(nffgName) )
-			return null;
+			throw new ForbiddenException();
 		
 		// Check if node exists and belongs to nffg specified
 		NodeType srcNode = nodeMap.get(srcNodeName);
 		if ( srcNode == null || !nodeListMap.get(nffgName).contains(srcNode) )
-			return null;
+			throw new ForbiddenException();
 		
 		// Check if destination node exists and belongs to nffg specified
 		NodeType dstNode = nodeMap.get( link.getDstNode() );
 		if ( dstNode == null || !nodeListMap.get(nffgName).contains(dstNode) )
-			return null;
+			throw new ForbiddenException();
 		
 		// Get linkLists (related to srcNode and nffg)
 		List<LinkType> linkList = linkListMap.get(srcNodeName);
@@ -427,7 +429,7 @@ public class NfvDeployerService
 			postRelationships("ForwardsTo", srcNode, newLink);
 		}
 		catch (ServiceException se) {
-			return null;
+			throw new InternalServerErrorException();
 		}
 		
 		// Update data
@@ -502,7 +504,7 @@ public class NfvDeployerService
 			reachableNodes = getReachableNodes(nodeID);
 		}
 		catch (ServiceException se) {
-			return null;
+			throw new InternalServerErrorException();
 		}
 		
 		// Create hosts element and hostNameSet (to keep track of host already added in the list)
@@ -798,6 +800,7 @@ public class NfvDeployerService
 		
 		// Call Neo4JSimpleXML API
 		try {
+			@SuppressWarnings("unused")
 			Relationship res = target.path("data/node/" + srcNodeID + "/relationships")
 					                 .request(MediaType.APPLICATION_XML)
 					                 .post(Entity.entity(newRelationship, MediaType.APPLICATION_XML), Relationship.class);

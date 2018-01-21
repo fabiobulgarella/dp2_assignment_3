@@ -54,19 +54,20 @@ public class MyDeployedNffg implements DeployedNffg
 		// Call NfvDeployer REST Web Service
 		NodeType responseNode;
 		
+		Response response = target.path("nffgs/" + nffgName + "/nodes")
+				                  .request(MediaType.APPLICATION_XML)
+				                  .post(Entity.entity(objFactory.createNode(newNode), MediaType.APPLICATION_XML));
+		
 		try {
-			responseNode = target.path("nffgs/" + nffgName + "/nodes")
-			                     .request(MediaType.APPLICATION_XML)
-			                     .post(Entity.entity(objFactory.createNode(newNode), MediaType.APPLICATION_XML), NodeType.class);
-		}
-		catch (ProcessingException pe) {
-			throw new ServiceException("Error during JAX-RS request processing", pe);
-		}
-		catch (WebApplicationException wae) {
-			throw new ServiceException("Server returned error", wae);
-		}
-		catch (Exception e) {
-			throw new ServiceException("Unexpected exception", e);
+			if (response.getStatus() == 200)
+				responseNode = response.readEntity(NodeType.class);
+			else if (response.getStatus() == 409)
+				throw new AllocationException();
+			else
+				throw new ServiceException();
+		} 
+		finally {
+			response.close();
 		}
 		
 		// Build and return NodeReader response
@@ -93,6 +94,8 @@ public class MyDeployedNffg implements DeployedNffg
 		try {
 			if (response.getStatus() == 200)
 				responseLink = response.readEntity(LinkType.class);
+			else if (response.getStatus() == 403)
+				throw new NoNodeException();
 			else if (response.getStatus() == 409)
 				throw new LinkAlreadyPresentException();
 			else
