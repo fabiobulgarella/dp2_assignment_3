@@ -21,8 +21,12 @@ import it.polito.dp2.NFV.lab3.NfvClientException;
 import it.polito.dp2.NFV.lab3.NodeDescriptor;
 import it.polito.dp2.NFV.lab3.ServiceException;
 import it.polito.dp2.NFV.lab3.UnknownEntityException;
+import it.polito.dp2.NFV.sol3.jaxb.CatalogType;
+import it.polito.dp2.NFV.sol3.jaxb.HostType;
+import it.polito.dp2.NFV.sol3.jaxb.HostsType;
 import it.polito.dp2.NFV.sol3.jaxb.LinkType;
 import it.polito.dp2.NFV.sol3.jaxb.NffgType;
+import it.polito.dp2.NFV.sol3.jaxb.NfvType;
 import it.polito.dp2.NFV.sol3.jaxb.NodeType;
 import it.polito.dp2.NFV.sol3.jaxb.ObjectFactory;
 
@@ -30,6 +34,8 @@ public class MyNfvClient implements NfvClient
 {
 	private WebTarget target;
 	private ObjectFactory objFactory;
+	
+	private NfvType nfv;
 
 	// Class constructor
 	public MyNfvClient(String serviceURL) throws NfvClientException
@@ -45,6 +51,94 @@ public class MyNfvClient implements NfvClient
 		
 		// Instantiate ObjectFactory
 		objFactory = new ObjectFactory();
+		
+		// Instantiate NfvType object
+		nfv = new NfvType();
+		
+		// Build NFV methods
+		nfv.setCatalog( getCatalog() );
+		nfv.setHosts( getHosts() );
+	}
+	
+	private CatalogType getCatalog() throws NfvClientException
+	{
+		// Call NfvDeployer REST Web Service
+		CatalogType catalog;
+		
+		try {
+			catalog = target.path("catalog")
+					     .request()
+					     .accept(MediaType.APPLICATION_XML)
+					     .get(CatalogType.class);
+		}
+		catch (ProcessingException pe) {
+			throw new NfvClientException("Error during JAX-RS request processing");
+		}
+		catch (WebApplicationException wae) {
+			throw new NfvClientException("Server returned error");
+		}
+		catch (Exception e) {
+			throw new NfvClientException("Unexpected exception");
+		}
+		
+		return catalog;
+	}
+	
+	private HostsType getHosts() throws NfvClientException
+	{
+		// Call NfvDeployer REST Web Service
+		HostsType hosts;
+		
+		try {
+			hosts = target.path("hosts")
+					     .request()
+					     .accept(MediaType.APPLICATION_XML)
+					     .get(HostsType.class);
+		}
+		catch (ProcessingException pe) {
+			throw new NfvClientException("Error during JAX-RS request processing");
+		}
+		catch (WebApplicationException wae) {
+			throw new NfvClientException("Server returned error");
+		}
+		catch (Exception e) {
+			throw new NfvClientException("Unexpected exception");
+		}
+		
+		// Create a complete host set (including nodeRefs)
+		HostsType newHosts = objFactory.createHostsType();
+		
+		for (HostType host: hosts.getHost())
+		{
+			HostType newHost = getHost( host.getName() );
+			newHosts.getHost().add(newHost);
+		}
+		
+		return newHosts;
+	}
+	
+	private HostType getHost(String hostName) throws NfvClientException
+	{
+		// Call NfvDeployer REST Web Service
+		HostType host;
+		
+		try {
+			host = target.path("hosts/" + hostName)
+					     .request()
+					     .accept(MediaType.APPLICATION_XML)
+					     .get(HostType.class);
+		}
+		catch (ProcessingException pe) {
+			throw new NfvClientException("Error during JAX-RS request processing");
+		}
+		catch (WebApplicationException wae) {
+			throw new NfvClientException("Server returned error");
+		}
+		catch (Exception e) {
+			throw new NfvClientException("Unexpected exception");
+		}
+		
+		return host;
 	}
 
 	@Override
@@ -111,7 +205,7 @@ public class MyNfvClient implements NfvClient
 			throw new ServiceException("Unexpected exception", e);
 		}
 		
-		return new MyDeployedNffg(target, deployedNffg);
+		return new MyDeployedNffg(target, nfv, deployedNffg.getName());
 	}
 
 	@Override
@@ -139,7 +233,7 @@ public class MyNfvClient implements NfvClient
 			throw new ServiceException("Unexpected exception", e);
 		}
 		
-		return new MyDeployedNffg(target, deployedNffg);
+		return new MyDeployedNffg(target, nfv, deployedNffg.getName());
 	}
 
 }

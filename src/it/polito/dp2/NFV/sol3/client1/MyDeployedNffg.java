@@ -8,6 +8,7 @@ import javax.ws.rs.core.MediaType;
 
 import it.polito.dp2.NFV.LinkReader;
 import it.polito.dp2.NFV.NffgReader;
+import it.polito.dp2.NFV.NfvReader;
 import it.polito.dp2.NFV.NodeReader;
 import it.polito.dp2.NFV.VNFTypeReader;
 import it.polito.dp2.NFV.lab3.AllocationException;
@@ -15,8 +16,10 @@ import it.polito.dp2.NFV.lab3.DeployedNffg;
 import it.polito.dp2.NFV.lab3.LinkAlreadyPresentException;
 import it.polito.dp2.NFV.lab3.NoNodeException;
 import it.polito.dp2.NFV.lab3.ServiceException;
+import it.polito.dp2.NFV.sol3.client1.NfvReader.MyNfvReader;
 import it.polito.dp2.NFV.sol3.jaxb.LinkType;
 import it.polito.dp2.NFV.sol3.jaxb.NffgType;
+import it.polito.dp2.NFV.sol3.jaxb.NfvType;
 import it.polito.dp2.NFV.sol3.jaxb.NodeType;
 import it.polito.dp2.NFV.sol3.jaxb.ObjectFactory;
 
@@ -24,15 +27,16 @@ public class MyDeployedNffg implements DeployedNffg
 {
 	private WebTarget target;
 	private ObjectFactory objFactory;
-	private NffgType nffg;
 	private String nffgName;
 	
+	private NfvType nfv;
+	
 	// Class constructor
-	public MyDeployedNffg(WebTarget target, NffgType nffg)
+	public MyDeployedNffg(WebTarget target, NfvType nfv, String nffgName)
 	{
 		this.target = target;
-		this.nffg = nffg;
-		this.nffgName = nffg.getName();
+		this.nfv = nfv;
+		this.nffgName = nffgName;
 		
 		// Instantiate ObjectFactory
 		objFactory = new ObjectFactory();
@@ -64,7 +68,8 @@ public class MyDeployedNffg implements DeployedNffg
 			throw new ServiceException("Unexpected exception", e);
 		}
 		
-		return null;
+		// Build and return NodeReader response
+		return getReader().getNode( responseNode.getName() );
 	}
 
 	@Override
@@ -95,7 +100,16 @@ public class MyDeployedNffg implements DeployedNffg
 			throw new ServiceException("Unexpected exception", e);
 		}
 		
-		return null;
+		// Build and return LinkReader response
+		LinkReader resLink_r = null;
+		
+		for ( LinkReader link_r: getReader().getNode(srcNodeName).getLinks() )
+		{
+			if ( link_r.getName().equals( responseLink.getName() ) )
+				resLink_r = link_r;
+		}
+		
+		return resLink_r; 
 	}
 
 	@Override
@@ -120,7 +134,14 @@ public class MyDeployedNffg implements DeployedNffg
 			throw new ServiceException("Unexpected exception", e);
 		}
 		
-		return null;
+		// Clean list from previous nffg
+		nfv.getNffgs().getNffg().clear();
+		nfv.getNffgs().getNffg().add(nffg);
+		
+		// Create NfvReader
+		NfvReader nfv_r = new MyNfvReader(nfv);
+		
+		return nfv_r.getNffg(nffgName);
 	}
 
 }
