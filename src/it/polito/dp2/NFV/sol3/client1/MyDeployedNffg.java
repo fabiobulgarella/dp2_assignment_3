@@ -5,6 +5,7 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 import it.polito.dp2.NFV.LinkReader;
 import it.polito.dp2.NFV.NffgReader;
@@ -56,7 +57,7 @@ public class MyDeployedNffg implements DeployedNffg
 		try {
 			responseNode = target.path("nffgs/" + nffgName + "/nodes")
 			                     .request(MediaType.APPLICATION_XML)
-			                     .post(Entity.entity(newNode, MediaType.APPLICATION_XML), NodeType.class);
+			                     .post(Entity.entity(objFactory.createNode(newNode), MediaType.APPLICATION_XML), NodeType.class);
 		}
 		catch (ProcessingException pe) {
 			throw new ServiceException("Error during JAX-RS request processing", pe);
@@ -83,21 +84,22 @@ public class MyDeployedNffg implements DeployedNffg
 		String srcNodeName = source.getName();
 		
 		// Call NfvDeployer REST Web Service
-		LinkType responseLink;
+		LinkType responseLink = null;
+		
+		Response response = target.path("nffgs/" + nffgName + "/nodes/" + srcNodeName + "/links")
+                                  .request(MediaType.APPLICATION_XML)
+                                  .post(Entity.entity(objFactory.createLink(newLink), MediaType.APPLICATION_XML));
 		
 		try {
-			responseLink = target.path("nffgs/" + nffgName + "/nodes/" + srcNodeName)
-			                     .request(MediaType.APPLICATION_XML)
-			                     .post(Entity.entity(newLink, MediaType.APPLICATION_XML), LinkType.class);
-		}
-		catch (ProcessingException pe) {
-			throw new ServiceException("Error during JAX-RS request processing", pe);
-		}
-		catch (WebApplicationException wae) {
-			throw new ServiceException("Server returned error", wae);
-		}
-		catch (Exception e) {
-			throw new ServiceException("Unexpected exception", e);
+			if (response.getStatus() == 200)
+				responseLink = response.readEntity(LinkType.class);
+			else if (response.getStatus() == 409)
+				throw new LinkAlreadyPresentException();
+			else
+				throw new ServiceException();
+		} 
+		finally {
+			response.close();
 		}
 		
 		// Build and return LinkReader response

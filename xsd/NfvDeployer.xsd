@@ -14,10 +14,6 @@
       <xs:selector xpath="r:node" />
       <xs:field xpath="@name" />
     </xs:key>
-    <xs:key name="linkKey">
-      <xs:selector xpath="r:node/r:link" />
-      <xs:field xpath="@name" />
-    </xs:key>
     <xs:keyref name="dstNodeKeyref" refer="nodeKey">
       <xs:selector xpath="r:node/r:link" />
       <xs:field xpath="@dstNode" />
@@ -106,7 +102,7 @@
   </xs:complexType>
   
   <xs:complexType name="linkType">
-    <xs:attribute name="name" type="nameType" use="required" />
+    <xs:attribute name="name" type="nameType" />
     <xs:attribute name="dstNode" type="xs:string" use="required" />
     <xs:attribute name="minThroughput" type="nonNegativeFloat" />
     <xs:attribute name="maxLatency" type="nonNegativeInt" />

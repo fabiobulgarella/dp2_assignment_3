@@ -359,10 +359,15 @@ public class NfvDeployerService
 		nodeRef.setName(newNode.getName());
 		nodeRefListMap.get(newNode.getHostRef()).add(nodeRef);
 		
+		// Create a linkList for future link adding
+		List<LinkType> newLinkList = new ArrayList<LinkType>();
+		
 		// If all it's ok, update data maps
+		nffgMap.get(nffgName).getNode().add(newNode);
 		nodeListMap.get(nffgName).add(newNode);
 		nodeMap.put(newNode.getName(), newNode);
 		NfvDeployerDB.setHostsStatusMap(hostsStatusMap);
+		linkListMap.put(newNodeName, newLinkList);
 		
 		return objFactory.createNode(newNode);
 	}
@@ -403,7 +408,7 @@ public class NfvDeployerService
 				}
 				
 				// If overwrite attribute is not set abort
-				return null;
+				throw new ConflictException();
 			}
 		}
 		
@@ -425,7 +430,8 @@ public class NfvDeployerService
 			return null;
 		}
 		
-		// Update maps
+		// Update data
+		srcNode.getLink().add(newLink);
 		linkList.add(newLink);
 		nffgLinkList.add(newLink);
 		

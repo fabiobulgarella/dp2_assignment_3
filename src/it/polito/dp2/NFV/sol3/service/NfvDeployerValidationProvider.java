@@ -29,10 +29,13 @@ import org.xml.sax.SAXException;
 @Consumes(MediaType.APPLICATION_XML)
 public class NfvDeployerValidationProvider implements MessageBodyReader<JAXBElement<?>>
 {
+	// JAXB Package, as specified on sol_build.xml
 	final String jaxbPackage = "it.polito.dp2.NFV.sol3.jaxb";
+	
 	Unmarshaller unmarshaller;
 	Logger logger;
 	
+	// Class constructor
 	public NfvDeployerValidationProvider()
 	{	
 		logger = Logger.getLogger(NfvDeployerValidationProvider.class.getName());

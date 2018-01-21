@@ -12,6 +12,7 @@ import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
+
 import it.polito.dp2.NFV.lab3.AllocationException;
 import it.polito.dp2.NFV.lab3.DeployedNffg;
 import it.polito.dp2.NFV.lab3.LinkDescriptor;
@@ -22,10 +23,12 @@ import it.polito.dp2.NFV.lab3.NodeDescriptor;
 import it.polito.dp2.NFV.lab3.ServiceException;
 import it.polito.dp2.NFV.lab3.UnknownEntityException;
 import it.polito.dp2.NFV.sol3.jaxb.CatalogType;
+import it.polito.dp2.NFV.sol3.jaxb.ConnectionsType;
 import it.polito.dp2.NFV.sol3.jaxb.HostType;
 import it.polito.dp2.NFV.sol3.jaxb.HostsType;
 import it.polito.dp2.NFV.sol3.jaxb.LinkType;
 import it.polito.dp2.NFV.sol3.jaxb.NffgType;
+import it.polito.dp2.NFV.sol3.jaxb.NffgsType;
 import it.polito.dp2.NFV.sol3.jaxb.NfvType;
 import it.polito.dp2.NFV.sol3.jaxb.NodeType;
 import it.polito.dp2.NFV.sol3.jaxb.ObjectFactory;
@@ -57,7 +60,10 @@ public class MyNfvClient implements NfvClient
 		
 		// Build NFV methods
 		nfv.setCatalog( getCatalog() );
+		NffgsType nffgs = objFactory.createNffgsType();
+		nfv.setNffgs(nffgs);
 		nfv.setHosts( getHosts() );
+		nfv.setConnections( getConnections() );
 	}
 	
 	private CatalogType getCatalog() throws NfvClientException
@@ -140,6 +146,30 @@ public class MyNfvClient implements NfvClient
 		
 		return host;
 	}
+	
+	private ConnectionsType getConnections() throws NfvClientException
+	{
+		// Call NfvDeployer REST Web Service
+		ConnectionsType connections;
+		
+		try {
+			connections = target.path("connections")
+					            .request()
+					            .accept(MediaType.APPLICATION_XML)
+					            .get(ConnectionsType.class);
+		}
+		catch (ProcessingException pe) {
+			throw new NfvClientException("Error during JAX-RS request processing");
+		}
+		catch (WebApplicationException wae) {
+			throw new NfvClientException("Server returned error");
+		}
+		catch (Exception e) {
+			throw new NfvClientException("Unexpected exception");
+		}
+		
+		return connections;
+	}
 
 	@Override
 	public DeployedNffg deployNffg(NffgDescriptor nffg) throws AllocationException, ServiceException
@@ -193,7 +223,7 @@ public class MyNfvClient implements NfvClient
 		try {
 			deployedNffg = target.path("nffgs")
 			                     .request(MediaType.APPLICATION_XML)
-			                     .post(Entity.entity(nffgType, MediaType.APPLICATION_XML), NffgType.class);
+			                     .post(Entity.entity(objFactory.createNffg(nffgType), MediaType.APPLICATION_XML), NffgType.class);
 		}
 		catch (ProcessingException pe) {
 			throw new ServiceException("Error during JAX-RS request processing", pe);

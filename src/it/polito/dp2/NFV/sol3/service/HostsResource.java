@@ -25,11 +25,11 @@ public class HostsResource
     }
 	
 	@GET
-	@Path("{id}")
+	@Path("{hostName}")
 	@Produces(MediaType.APPLICATION_XML)
-	public JAXBElement<HostType> getHost(@PathParam("id") String id)
+	public JAXBElement<HostType> getHost(@PathParam("hostName") String hostName)
 	{
-		JAXBElement<HostType> host = nfvService.getHost(id);
+		JAXBElement<HostType> host = nfvService.getHost(hostName);
 		
 		if (host == null)
 			throw new NotFoundException();
