@@ -98,7 +98,7 @@ public class NfvDeployerDB
 		hostNameList = newHostNameList;
 	}
 	
-	public static List<String> shuffleHostNameList()
+	public static synchronized List<String> shuffleHostNameList()
 	{
 		Collections.shuffle(hostNameList);
 		return hostNameList;

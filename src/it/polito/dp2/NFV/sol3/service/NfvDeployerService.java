@@ -9,6 +9,7 @@ import java.util.Map;
 
 import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.InternalServerErrorException;
+import javax.ws.rs.NotFoundException;
 import javax.ws.rs.ProcessingException;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.client.Client;
@@ -46,17 +47,16 @@ public class NfvDeployerService
 	private ObjectFactory objFactory;
 	private it.polito.dp2.NFV.sol3.neo4j.ObjectFactory neo4jFactory;
 	private WebTarget target;
-	private String neo4jURL;
 	
 	// DB -> concurrent maps
 	private Map<String, VnfType> vnfMap = NfvDeployerDB.getVnfMap();
 	private Map<String, NffgType> nffgMap = NfvDeployerDB.getNffgMap();
-	private Map<String, List<NodeType>> nodeListMap = NfvDeployerDB.getNodeListMap();
+	private Map<String, List<NodeType>> nodeListMap = NfvDeployerDB.getNodeListMap(); // Maps a node list to a nffgName
 	private Map<String, NodeType> nodeMap = NfvDeployerDB.getNodeMap();
-	private Map<String, List<LinkType>> linkListMap = NfvDeployerDB.getLinkListMap(); // Maps a link list to a node
-	private Map<String, List<LinkType>> nffgLinkListMap = NfvDeployerDB.getNffgLinkListMap(); // Maps a link list to a nffg
+	private Map<String, List<LinkType>> linkListMap = NfvDeployerDB.getLinkListMap(); // Maps a link list to a nodeName
+	private Map<String, List<LinkType>> nffgLinkListMap = NfvDeployerDB.getNffgLinkListMap(); // Maps a link list to a nffgName
 	private Map<String, HostType> hostMap = NfvDeployerDB.getHostMap();
-	private Map<String, List<NodeRefType>> nodeRefListMap = NfvDeployerDB.getNodeRefListMap();
+	private Map<String, List<NodeRefType>> nodeRefListMap = NfvDeployerDB.getNodeRefListMap(); // Maps a nodeRef list to a hostName
 	private Map<String, ConnectionType> connectionMap = NfvDeployerDB.getConnectionMap();
 	
 	private Map<String, String> nodeIdMap = NfvDeployerDB.getNodeIdMap();
@@ -74,7 +74,7 @@ public class NfvDeployerService
 		NffgType nffg0 = nfvInit.bootstrap();
 		
 		// Read Neo4JSimpleXML url
-		neo4jURL = System.getProperty("it.polito.dp2.NFV.lab3.Neo4JSimpleXMLURL");
+		String neo4jURL = System.getProperty("it.polito.dp2.NFV.lab3.Neo4JSimpleXMLURL");
 		if (neo4jURL == null)
 			neo4jURL = "http://localhost:8080/Neo4JSimpleXML/rest";
 		
@@ -88,17 +88,14 @@ public class NfvDeployerService
 		}
 		
 		// Deploy Nffg0
-		if ( postNffg(nffg0) == null )
-			throw new InternalServerErrorException();
+		postNffg(nffg0);
 	}
 	
 	// Singleton instance method
 	public static synchronized NfvDeployerService getInstance()
 	{
 		if (instance == null)
-		{
 			instance = new NfvDeployerService();
-		}
 		
 		return instance;
 	}
@@ -141,21 +138,24 @@ public class NfvDeployerService
 	{
 		NffgType nffg = nffgMap.get(nffgName);
 		
-		if (nffg != null)
-			return objFactory.createNffg(nffg);
+		if (nffg == null)
+			throw new NotFoundException();
 		
-		return null;
+		return objFactory.createNffg(nffg);
 	}
 	
 	public JAXBElement<NodeType> getNode(String nffgName, String nodeName)
 	{
-		NodeType node = nodeMap.get(nodeName);
+		// Check if related nffg is deployed
+		if ( !isDeployed(nffgName) )
+			throw new NotFoundException();
 		
 		// Check if node exists and belongs to nffg specified
-		if ( node != null && nodeListMap.get(nffgName).contains(node) )
-			return objFactory.createNode(node);
+		NodeType node = nodeMap.get(nodeName);
+		if ( node == null || !nodeListMap.get(nffgName).contains(node) )
+			throw new NotFoundException();
 		
-		return null;
+		return objFactory.createNode(node);
 	}
 	
 	public synchronized JAXBElement<NffgType> postNffg(NffgType nffg)
@@ -301,12 +301,12 @@ public class NfvDeployerService
 		}
 		
 		// If all it's ok, update data maps
-		nffgMap.put(newNffg.getName(), newNffg);
 		nodeListMap.put(newNffg.getName(), newNodeList);
 		nodeMap.putAll(nodeMapTMP);
 		linkListMap.putAll(linkListMapTMP);
 		nffgLinkListMap.putAll(nffgLinkListMapTMP);
 		NfvDeployerDB.setHostsStatusMap(hostsStatusMap);
+		nffgMap.put(newNffg.getName(), newNffg);
 		
 		return objFactory.createNffg(newNffg);
 	}
@@ -366,9 +366,9 @@ public class NfvDeployerService
 		// If all it's ok, update data maps
 		nffgMap.get(nffgName).getNode().add(newNode);
 		nodeListMap.get(nffgName).add(newNode);
-		nodeMap.put(newNode.getName(), newNode);
 		NfvDeployerDB.setHostsStatusMap(hostsStatusMap);
 		linkListMap.put(newNodeName, newLinkList);
+		nodeMap.put(newNode.getName(), newNode);
 		
 		return objFactory.createNode(newNode);
 	}
@@ -459,43 +459,38 @@ public class NfvDeployerService
 		HostType host = hostMap.get(id);
 		List<NodeRefType> nodeRefList = nodeRefListMap.get(id);
 		
-		if (host != null)
+		if (host == null)
+			throw new NotFoundException();
+		
+		HostType newHost = objFactory.createHostType();
+		newHost.setName( host.getName() );
+		newHost.setMaxVnfs( host.getMaxVnfs() );
+		newHost.setMemory( host.getMemory() );
+		newHost.setStorage( host.getStorage() );
+		
+		for (NodeRefType nodeRef: nodeRefList)
 		{
-			HostType newHost = objFactory.createHostType();
-			newHost.setName( host.getName() );
-			newHost.setMaxVnfs( host.getMaxVnfs() );
-			newHost.setMemory( host.getMemory() );
-			newHost.setStorage( host.getStorage() );
-			
-			if (nodeRefList != null)
-			{
-				for (NodeRefType nodeRef: nodeRefList)
-				{
-					newHost.getNodeRef().add(nodeRef);
-				}
-			}
-			
-			return objFactory.createHost(newHost);
+			newHost.getNodeRef().add(nodeRef);
 		}
 		
-		return null;
+		return objFactory.createHost(newHost);
 	}
 	
 	public synchronized JAXBElement<HostsType> getReachableHosts(String nffgName, String nodeName)
 	{
 		// Check if related nffg is deployed
 		if ( !isDeployed(nffgName) )
-			return null;
+			throw new NotFoundException();
 		
 		// Check if node exists and belongs to nffg specified
 		NodeType node = nodeMap.get(nodeName);
 		if ( node == null || !nodeListMap.get(nffgName).contains(node) )
-			return null;
+			throw new NotFoundException();
 		
 		// Get neo4j node ID
 		String nodeID = nodeIdMap.get(nodeName);
 		if (nodeID == null)
-			return null;
+			throw new InternalServerErrorException();
 		
 		// Call neo4j in order to obtain reachableNodes list
 		Nodes reachableNodes;
@@ -559,10 +554,11 @@ public class NfvDeployerService
 	public JAXBElement<ConnectionType> getConnection(String host1, String host2)
 	{
 		ConnectionType connection = connectionMap.get(host1 + host2);
-		if (connection != null)
-			return objFactory.createConnection(connection);
 		
-		return null;
+		if (connection == null)
+			throw new NotFoundException();
+		
+		return objFactory.createConnection(connection);
 	}
 	
 	/*

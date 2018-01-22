@@ -1,7 +1,6 @@
 package it.polito.dp2.NFV.sol3.service;
 
 import javax.ws.rs.GET;
-import javax.ws.rs.NotFoundException;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -29,11 +28,6 @@ public class HostsResource
 	@Produces(MediaType.APPLICATION_XML)
 	public JAXBElement<HostType> getHost(@PathParam("hostName") String hostName)
 	{
-		JAXBElement<HostType> host = nfvService.getHost(hostName);
-		
-		if (host == null)
-			throw new NotFoundException();
-		
-		return host;
+		return nfvService.getHost(hostName);
     }
 }

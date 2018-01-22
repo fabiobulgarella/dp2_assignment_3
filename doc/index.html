@@ -1,1 +1,254 @@
-Test file.
+<!doctype html>
+<html lang="en">
+	<head>
+	<!-- Required meta tags -->
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+	<!-- Bootstrap CSS -->
+	<link rel="stylesheet" href="css/bootstrap.min.css">
+
+	<title>Hello, world!</title>
+
+	<style type="text/css">
+		body {
+			background-color: #EEEEEE;
+		}
+		div.white-box {
+			padding: 3rem;
+			background-color: #fff;
+			border: 1px solid #E1E1E1;
+			border-radius: 5px;
+		}
+		.table {
+			margin-bottom: 3rem;
+		}
+		.table td, .table th {
+			vertical-align: middle;
+		}
+		.table-sm td, .table-sm th {
+		    padding: .3rem .9rem;
+		}
+		.table .thead-dark th {
+		    color: #fff;
+		    background-color: #205F9E;
+		    border-color: #235281;
+		}
+		.table-primary, .table-primary>td, .table-primary>th {
+		    background-color: #E9EDF4;
+		}
+		.table-secondary, .table-secondary>td, .table-secondary>th {
+		    background-color: #D0D8E8;
+		}
+	</style>
+
+	</head>
+	
+	<body>
+
+		<div class="container">
+			<h3>Distributed Programming II</h2>
+			<h5>Assignment 3b - REST API Documentation</h5>
+			<h5>Student: Fabio Bulgarella (s237094)</h5>
+
+			<br>
+			<div class="white-box">
+				<h3>Catalog Resource</h3>
+				<table class="table table-sm table-bordered">
+					<thead class="thead-dark">
+						<tr>
+							<th>Resources</th>
+							<th>URLs</th>
+							<th>XML Repr</th>
+							<th>Meaning</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr class="table-primary">
+							<th>catalog</th>
+							<td>catalog</td>
+							<td>catalog</td>
+							<td>set of all vnfs</td>
+						</tr>
+					</tbody>
+				</table>
+
+				<h3>Nffgs Resource</h3>
+				<table class="table table-sm table-bordered">
+					<thead class="thead-dark">
+						<tr>
+							<th>Resources</th>
+							<th>URLs</th>
+							<th>XML Repr</th>
+							<th>Meaning</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr class="table-primary">
+							<th>nffgs</th>
+							<td>nffgs</td>
+							<td>nffgs</td>
+							<td>set of all nffgs (without nodes for scalability reasons)</td>
+						</tr>
+						<tr class="table-secondary">
+							<th>{id}</th>
+							<td>nffgs/{id}</td>
+							<td>nffg</td>
+							<td>single nffg</td>
+						</tr>
+						<tr class="table-primary">
+							<th>nodes</th>
+							<td>nffgs/{id}/nodes</td>
+							<td></td>
+							<td>set of all nodes</td>
+						</tr>
+						<tr class="table-secondary">
+							<th>{id}</th>
+							<td>nffgs/{id}/nodes/{id}</td>
+							<td>node</td>
+							<td>single node</td>
+						</tr>
+						<tr class="table-primary">
+							<th>links</th>
+							<td>nffgs/{id}/nodes/{id}/links</td>
+							<td></td>
+							<td>set of all links</td>
+						</tr>
+						<tr class="table-primary">
+							<th>reachableHosts</th>
+							<td>nffgs/{id}/nodes/{id}/reachableHosts</td>
+							<td>hosts</td>
+							<td>set of all reachable hosts</td>
+						</tr>
+					</tbody>
+				</table>
+
+				<h3>Hosts Resource</h3>
+				<table class="table table-sm table-bordered">
+					<thead class="thead-dark">
+						<tr>
+							<th>Resources</th>
+							<th>URLs</th>
+							<th>XML Repr</th>
+							<th>Meaning</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr class="table-primary">
+							<th>hosts</th>
+							<td>hosts</td>
+							<td>hosts</td>
+							<td>set of all hosts</td>
+						</tr>
+						<tr class="table-secondary">
+							<th>{id}</th>
+							<td>hosts/{id}</td>
+							<td>host</td>
+							<td>single host</td>
+						</tr>
+					</tbody>
+				</table>
+
+				<h3>Connections Resource</h3>
+				<table class="table table-sm table-bordered">
+					<thead class="thead-dark">
+						<tr>
+							<th>Resources</th>
+							<th>URLs</th>
+							<th>XML Repr</th>
+							<th>Meaning</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr class="table-primary">
+							<th>connections</th>
+							<td>connections</td>
+							<td>connections</td>
+							<td>set of all connections</td>
+						</tr>
+						<tr class="table-secondary">
+							<th>{host1}/{host2}</th>
+							<td>connections/{host1}/{host2}</td>
+							<td>connection</td>
+							<td>single connection</td>
+						</tr>
+					</tbody>
+				</table>
+
+				<h4>Operations on Resources</h4>
+				<table class="table table-sm table-bordered">
+					<thead class="thead-dark">
+						<tr>
+							<th>Resource</th>
+							<th>Method</th>
+							<th>Req. Body</th>
+							<th>Status Code</th>
+							<th>Res. Body</th>
+							<th>Meaning</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr class="table-primary">
+							<th rowspan="2">catalog</th>
+							<td rowspan="2">GET</td>
+							<td rowspan="2"></td>
+							<td>200 OK</td>
+							<td>catalog</td>
+							<td>Read the whole VNFs collection</td>
+						</tr>
+						<tr class="table-primary">
+							<td>500 Internal Server Error</td>
+							<td></td>
+							<td>Try later</td>
+						</tr>
+						<tr class="table-secondary">
+							<th rowspan="6">nffgs</th>
+							<td rowspan="2">GET</td>
+							<td rowspan="2"></td>
+							<td>200 OK</td>
+							<td>nffgs</td>
+							<td>Read the whole Nffgs collection, without nodes</td>
+						</tr>
+						<tr class="table-secondary">
+							<td>500 Internal Server Error</td>
+							<td></td>
+							<td>Try later</td>
+						</tr>
+						<tr class="table-secondary">
+							<td rowspan="3">POST</td>
+							<td rowspan="3"></td>
+							<td>200 OK</td>
+							<td>nffg</td>
+							<td>Post a complete Nffg</td>
+						</tr>
+						<tr class="table-secondary">
+							<td>409 Conflict</td>
+							<td></td>
+							<td>Allocation failed.</td>
+						</tr>
+						<tr class="table-secondary">
+							<td>500 Internal Server Error</td>
+							<td></td>
+							<td>Try later</td>
+						</tr>
+						<tr class="table-secondary">
+							<td>DELETE</td>
+							<td></td>
+							<td>501 Not Implemented</td>
+							<td></td>
+							<td>This method will be implemented later on</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+				
+		</div>
+
+
+		<!-- Optional JavaScript -->
+		<!-- jQuery first, then Popper.js, then Bootstrap JS -->
+		<script src="js/jquery-3.2.1.slim.min.js"></script>
+		<script src="js/popper.min.js"></script>
+		<script src="js/bootstrap.min.js"></script>
+	</body>
+</html>

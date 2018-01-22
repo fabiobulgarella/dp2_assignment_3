@@ -4,8 +4,6 @@ import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
-import javax.ws.rs.InternalServerErrorException;
-import javax.ws.rs.NotFoundException;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -39,12 +37,7 @@ public class NffgsResource
 	@Produces(MediaType.APPLICATION_XML)
 	public JAXBElement<NffgType> getNffg(@PathParam("nffgName") String nffgName)
 	{
-		JAXBElement<NffgType> nffg = nfvService.getNffg(nffgName);
-		
-		if (nffg == null)
-			throw new NotFoundException();
-		
-		return nffg;
+		return nfvService.getNffg(nffgName);
     }
 	
 	@GET
@@ -52,12 +45,7 @@ public class NffgsResource
 	@Produces(MediaType.APPLICATION_XML)
 	public JAXBElement<NodeType> getNode(@PathParam("nffgName") String nffgName, @PathParam("nodeName") String nodeName)
 	{
-		JAXBElement<NodeType> node = nfvService.getNode(nffgName, nodeName);
-		
-		if (node == null)
-			throw new NotFoundException();
-		
-		return node;
+		return nfvService.getNode(nffgName, nodeName);
     }
 	
 	@GET
@@ -65,12 +53,7 @@ public class NffgsResource
 	@Produces(MediaType.APPLICATION_XML)
 	public JAXBElement<HostsType> getReachableHosts(@PathParam("nffgName") String nffgName, @PathParam("nodeName") String nodeName)
 	{
-		JAXBElement<HostsType> hosts = nfvService.getReachableHosts(nffgName, nodeName);
-		
-		if (hosts == null)
-			throw new NotFoundException();
-		
-		return hosts;
+		return nfvService.getReachableHosts(nffgName, nodeName);
     }
 	
 	@POST
@@ -87,12 +70,7 @@ public class NffgsResource
 		
 		nffg = nffgElement.getValue();
 		
-		JAXBElement<NffgType> nffgRes = nfvService.postNffg(nffg);
-		
-		if (nffgRes == null)
-			throw new InternalServerErrorException();
-		
-		return nffgRes;
+		return nfvService.postNffg(nffg);
     }
 	
 	@POST
@@ -110,12 +88,7 @@ public class NffgsResource
 		
 		node = nodeElement.getValue();
 		
-		JAXBElement<NodeType> nodeRes = nfvService.postNode(nffgName, node);
-		
-		if (nodeRes == null)
-			throw new InternalServerErrorException();
-		
-		return nodeRes;
+		return nfvService.postNode(nffgName, node);
     }
 	
 	@POST
@@ -133,12 +106,7 @@ public class NffgsResource
 		
 		link = linkElement.getValue();
 		
-		JAXBElement<LinkType> linkRes = nfvService.postLink(nffgName, nodeName, link);
-		
-		if (linkRes == null)
-			throw new InternalServerErrorException();
-		
-		return linkRes;
+		return nfvService.postLink(nffgName, nodeName, link);
     }
 	
 	@DELETE

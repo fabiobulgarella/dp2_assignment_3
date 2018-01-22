@@ -58,6 +58,7 @@ public class NfvDeployerInit
 			throw new InternalServerErrorException();
 		}
 		
+		// Instantiate ObjectFactory
 		objFactory = new ObjectFactory();
 		
 		initCatalog();
