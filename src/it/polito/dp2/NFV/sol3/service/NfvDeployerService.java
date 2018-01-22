@@ -21,7 +21,6 @@ import javax.xml.bind.JAXBElement;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 
-import it.polito.dp2.NFV.lab3.ServiceException;
 import it.polito.dp2.NFV.sol3.jaxb.CatalogType;
 import it.polito.dp2.NFV.sol3.jaxb.ConnectionType;
 import it.polito.dp2.NFV.sol3.jaxb.ConnectionsType;
