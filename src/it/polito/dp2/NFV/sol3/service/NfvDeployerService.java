@@ -43,7 +43,9 @@ import it.polito.dp2.NFV.sol3.neo4j.Relationship;
 
 public class NfvDeployerService
 {
-	private static NfvDeployerService instance = null;
+	// Singleton instance of the class
+	private static NfvDeployerService instance;
+	
 	private ObjectFactory objFactory;
 	private it.polito.dp2.NFV.sol3.neo4j.ObjectFactory neo4jFactory;
 	private WebTarget target;
