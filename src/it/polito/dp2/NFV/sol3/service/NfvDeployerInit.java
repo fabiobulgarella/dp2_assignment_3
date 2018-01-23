@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.ws.rs.InternalServerErrorException;
 import it.polito.dp2.NFV.ConnectionPerformanceReader;
@@ -122,7 +123,7 @@ public class NfvDeployerInit
 			hostNameList.add(host_r.getName());
 			
 			// Create an empty nodeRefList
-			List<NodeRefType> nodeRefList = new ArrayList<NodeRefType>();
+			List<NodeRefType> nodeRefList = new CopyOnWriteArrayList<NodeRefType>();
 			nodeRefListMap.put(host_r.getName(), nodeRefList);
 		}
 		

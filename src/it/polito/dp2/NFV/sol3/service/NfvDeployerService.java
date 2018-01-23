@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.InternalServerErrorException;
@@ -186,7 +187,7 @@ public class NfvDeployerService
 		newNffg.setName(nffgName);
 		
 		// Create a newNodeList related to this Nffg
-		List<NodeType> newNodeList = new ArrayList<NodeType>();
+		List<NodeType> newNodeList = new CopyOnWriteArrayList<NodeType>();
 		
 		for (NodeType node: nffg.getNode())
 		{
@@ -285,6 +286,14 @@ public class NfvDeployerService
 			throw new InternalServerErrorException();
 		}
 		
+		// Set deployTime variable to actual time
+		try {
+			newNffg.setDeployTime( DatatypeFactory.newInstance().newXMLGregorianCalendar(new GregorianCalendar()) );
+		}
+		catch (DatatypeConfigurationException e) {
+			throw new InternalServerErrorException();
+		}
+		
 		// Update nodeRefLists
 		for (NodeType node: nodeMapTMP.values())
 		{
@@ -294,15 +303,7 @@ public class NfvDeployerService
 			nodeRefListMap.get(node.getHostRef()).add(nodeRef);
 		}
 		
-		// Set deployTime variable to actual time
-		try {
-			newNffg.setDeployTime( DatatypeFactory.newInstance().newXMLGregorianCalendar(new GregorianCalendar()) );
-		}
-		catch (DatatypeConfigurationException e) {
-			throw new InternalServerErrorException();
-		}
-		
-		// If all it's ok, update data maps
+		// If all is OK, update data maps
 		nodeListMap.put(newNffg.getName(), newNodeList);
 		nodeMap.putAll(nodeMapTMP);
 		linkListMap.putAll(linkListMapTMP);
@@ -456,10 +457,10 @@ public class NfvDeployerService
 		return objFactory.createHosts(hosts);
 	}
 
-	public JAXBElement<HostType> getHost(String id)
+	public JAXBElement<HostType> getHost(String hostName)
 	{
-		HostType host = hostMap.get(id);
-		List<NodeRefType> nodeRefList = nodeRefListMap.get(id);
+		HostType host = hostMap.get(hostName);
+		List<NodeRefType> nodeRefList = nodeRefListMap.get(hostName);
 		
 		if (host == null)
 			throw new NotFoundException();
