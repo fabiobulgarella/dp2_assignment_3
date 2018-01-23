@@ -15,7 +15,7 @@
 			background-color: #EEEEEE;
 		}
 		div.white-box {
-			padding: 3rem;
+			padding: 5rem;
 			background-color: #fff;
 			border: 1px solid #E1E1E1;
 			border-radius: 5px;
@@ -34,11 +34,11 @@
 		    background-color: #205F9E;
 		    border-color: #235281;
 		}
-		.table-primary, .table-primary>td, .table-primary>th {
-		    background-color: #E9EDF4;
+		.color1 {
+		    background-color: #E9EDF4 !important;
 		}
-		.table-secondary, .table-secondary>td, .table-secondary>th {
-		    background-color: #D0D8E8;
+		.color2 {
+		    background-color: #D0D8E8 !important;
 		}
 	</style>
 
@@ -64,7 +64,7 @@
 						</tr>
 					</thead>
 					<tbody>
-						<tr class="table-primary">
+						<tr class="color1">
 							<th>catalog</th>
 							<td>catalog</td>
 							<td>catalog</td>
@@ -84,37 +84,37 @@
 						</tr>
 					</thead>
 					<tbody>
-						<tr class="table-primary">
+						<tr class="color1">
 							<th>nffgs</th>
 							<td>nffgs</td>
 							<td>nffgs</td>
 							<td>set of all nffgs (without nodes for scalability reasons)</td>
 						</tr>
-						<tr class="table-secondary">
+						<tr class="color2">
 							<th>{id}</th>
 							<td>nffgs/{id}</td>
 							<td>nffg</td>
 							<td>single nffg</td>
 						</tr>
-						<tr class="table-primary">
+						<tr class="color1">
 							<th>nodes</th>
 							<td>nffgs/{id}/nodes</td>
 							<td></td>
 							<td>set of all nodes</td>
 						</tr>
-						<tr class="table-secondary">
+						<tr class="color2">
 							<th>{id}</th>
 							<td>nffgs/{id}/nodes/{id}</td>
 							<td>node</td>
 							<td>single node</td>
 						</tr>
-						<tr class="table-primary">
+						<tr class="color1">
 							<th>links</th>
 							<td>nffgs/{id}/nodes/{id}/links</td>
 							<td></td>
 							<td>set of all links</td>
 						</tr>
-						<tr class="table-primary">
+						<tr class="color1">
 							<th>reachableHosts</th>
 							<td>nffgs/{id}/nodes/{id}/reachableHosts</td>
 							<td>hosts</td>
@@ -134,13 +134,13 @@
 						</tr>
 					</thead>
 					<tbody>
-						<tr class="table-primary">
+						<tr class="color1">
 							<th>hosts</th>
 							<td>hosts</td>
 							<td>hosts</td>
 							<td>set of all hosts</td>
 						</tr>
-						<tr class="table-secondary">
+						<tr class="color2">
 							<th>{id}</th>
 							<td>hosts/{id}</td>
 							<td>host</td>
@@ -160,13 +160,13 @@
 						</tr>
 					</thead>
 					<tbody>
-						<tr class="table-primary">
+						<tr class="color1">
 							<th>connections</th>
 							<td>connections</td>
 							<td>connections</td>
 							<td>set of all connections</td>
 						</tr>
-						<tr class="table-secondary">
+						<tr class="color2">
 							<th>{host1}/{host2}</th>
 							<td>connections/{host1}/{host2}</td>
 							<td>connection</td>
@@ -188,55 +188,58 @@
 						</tr>
 					</thead>
 					<tbody>
-						<tr class="table-primary">
-							<th rowspan="2">catalog</th>
-							<td rowspan="2">GET</td>
-							<td rowspan="2"></td>
+						<tr class="color1">
+							<th>catalog</th>
+							<td>GET</td>
+							<td></td>
 							<td>200 OK</td>
 							<td>catalog</td>
-							<td>Read the whole VNFs collection</td>
+							<td>get the whole VNFs collection</td>
 						</tr>
-						<tr class="table-primary">
+						<tr class="color2">
+							<th rowspan="4">nffgs</th>
+							<td>GET</td>
+							<td></td>
+							<td>200 OK</td>
+							<td>nffgs</td>
+							<td>get the whole Nffgs collection</td>
+						</tr>
+						<tr class="color1">
+							<td rowspan="3">POST</td>
+							<td rowspan="3">nffg</td>
+							<td>200 OK</td>
+							<td>nffg</td>
+							<td>create and allocate a complete Nffg</td>
+						</tr>
+						<tr class="color2">
+							<td>409 Conflict</td>
+							<td></td>
+							<td>allocation failed</td>
+						</tr>
+						<tr class="color1">
 							<td>500 Internal Server Error</td>
 							<td></td>
-							<td>Try later</td>
+							<td>server error, try later</td>
 						</tr>
-						<tr class="table-secondary">
-							<th rowspan="6">nffgs</th>
+						<tr class="color2">
+							<th rowspan="3">nffg/{id}</th>
 							<td rowspan="2">GET</td>
 							<td rowspan="2"></td>
 							<td>200 OK</td>
-							<td>nffgs</td>
-							<td>Read the whole Nffgs collection, without nodes</td>
-						</tr>
-						<tr class="table-secondary">
-							<td>500 Internal Server Error</td>
-							<td></td>
-							<td>Try later</td>
-						</tr>
-						<tr class="table-secondary">
-							<td rowspan="3">POST</td>
-							<td rowspan="3"></td>
-							<td>200 OK</td>
 							<td>nffg</td>
-							<td>Post a complete Nffg</td>
+							<td>get a complete Nffg</td>
 						</tr>
-						<tr class="table-secondary">
-							<td>409 Conflict</td>
+						<tr class="color1">
+							<td>404 Not Found</td>
 							<td></td>
-							<td>Allocation failed.</td>
+							<td>nffg not present</td>
 						</tr>
-						<tr class="table-secondary">
-							<td>500 Internal Server Error</td>
-							<td></td>
-							<td>Try later</td>
-						</tr>
-						<tr class="table-secondary">
+						<tr class="color2">
 							<td>DELETE</td>
 							<td></td>
 							<td>501 Not Implemented</td>
 							<td></td>
-							<td>This method will be implemented later on</td>
+							<td>this method will be implemented later on</td>
 						</tr>
 					</tbody>
 				</table>

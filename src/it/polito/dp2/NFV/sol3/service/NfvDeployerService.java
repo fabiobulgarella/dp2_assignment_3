@@ -6,8 +6,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CopyOnWriteArrayList;
-
 import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.NotFoundException;
@@ -59,7 +57,7 @@ public class NfvDeployerService
 	private Map<String, List<LinkType>> linkListMap = NfvDeployerDB.getLinkListMap(); // Maps a link list to a nodeName
 	private Map<String, List<LinkType>> nffgLinkListMap = NfvDeployerDB.getNffgLinkListMap(); // Maps a link list to a nffgName
 	private Map<String, HostType> hostMap = NfvDeployerDB.getHostMap();
-	private Map<String, List<NodeRefType>> nodeRefListMap = NfvDeployerDB.getNodeRefListMap(); // Maps a nodeRef list to a hostName
+	private Map<String, List<NodeRefType>> nodeRefListMap = NfvDeployerDB.getNodeRefListMap(); // Maps a nodeRef SYNC list to a hostName
 	private Map<String, ConnectionType> connectionMap = NfvDeployerDB.getConnectionMap();
 	
 	private Map<String, String> nodeIdMap = NfvDeployerDB.getNodeIdMap();
@@ -121,7 +119,7 @@ public class NfvDeployerService
 	/*
 	 * NFFGS METHODS
 	 */
-	public JAXBElement<NffgsType> getNffgs()
+	public synchronized JAXBElement<NffgsType> getNffgs()
 	{
 		NffgsType nffgs = objFactory.createNffgsType();
 		
@@ -137,7 +135,7 @@ public class NfvDeployerService
 		return objFactory.createNffgs(nffgs);
 	}
 	
-	public JAXBElement<NffgType> getNffg(String nffgName)
+	public synchronized JAXBElement<NffgType> getNffg(String nffgName)
 	{
 		NffgType nffg = nffgMap.get(nffgName);
 		
@@ -147,7 +145,7 @@ public class NfvDeployerService
 		return objFactory.createNffg(nffg);
 	}
 	
-	public JAXBElement<NodeType> getNode(String nffgName, String nodeName)
+	public synchronized JAXBElement<NodeType> getNode(String nffgName, String nodeName)
 	{
 		// Check if related nffg is deployed
 		if ( !isDeployed(nffgName) )
@@ -187,7 +185,7 @@ public class NfvDeployerService
 		newNffg.setName(nffgName);
 		
 		// Create a newNodeList related to this Nffg
-		List<NodeType> newNodeList = new CopyOnWriteArrayList<NodeType>();
+		List<NodeType> newNodeList = new ArrayList<NodeType>();
 		
 		for (NodeType node: nffg.getNode())
 		{
@@ -470,11 +468,7 @@ public class NfvDeployerService
 		newHost.setMaxVnfs( host.getMaxVnfs() );
 		newHost.setMemory( host.getMemory() );
 		newHost.setStorage( host.getStorage() );
-		
-		for (NodeRefType nodeRef: nodeRefList)
-		{
-			newHost.getNodeRef().add(nodeRef);
-		}
+		newHost.getNodeRef().addAll(nodeRefList);
 		
 		return objFactory.createHost(newHost);
 	}

@@ -1,6 +1,5 @@
 package it.polito.dp2.NFV.sol3.service;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.annotation.Annotation;
@@ -20,6 +19,7 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
+import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 
@@ -45,15 +45,21 @@ public class NfvDeployerValidationProvider implements MessageBodyReader<JAXBElem
 			JAXBContext jc = JAXBContext.newInstance(jaxbPackage);
 			unmarshaller = jc.createUnmarshaller();
 			
+			// Retreive schema file
+			InputStream schemaStream = NfvDeployerValidationProvider.class.getResourceAsStream("/xsd/NfvDeployer.xsd");
+			if (schemaStream == null) {
+				logger.log(Level.SEVERE, "xml schema file Not found.");
+				throw new IOException();
+			}
+			
 			// Set validation schema using default validation handler
-			String xsdPath = "xsd" + File.separator + "NfvDeployer.xsd";
 			SchemaFactory sf = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-			Schema schema = sf.newSchema(new File(xsdPath));
+			Schema schema = sf.newSchema(new StreamSource(schemaStream));
 			unmarshaller.setSchema(schema);
 			
 			logger.log(Level.INFO, "NfvDeployerValidationProvider initialized successfully");
 		}
-		catch (SAXException | JAXBException e) {
+		catch (SAXException | JAXBException | IOException e) {
 			logger.log(Level.SEVERE, "Error parsing xml schema file. Service will not work properly.", e);
 		}
 	}
