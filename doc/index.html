@@ -5,56 +5,33 @@
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-	<!-- Bootstrap CSS -->
-	<link rel="stylesheet" href="css/bootstrap.min.css">
+	<!-- Spectre CSS -->
+	<link rel="stylesheet" href="css/spectre.min.css">
+	<link rel="stylesheet" href="css/spectre-exp.min.css">
+	<link rel="stylesheet" href="css/spectre-icons.min.css">
+	<link rel="stylesheet" href="highlight/styles/github.css">
+	<link rel="stylesheet" href="css/main.css">
 
-	<title>Hello, world!</title>
-
-	<style type="text/css">
-		body {
-			background-color: #EEEEEE;
-		}
-		div.white-box {
-			padding: 5rem;
-			background-color: #fff;
-			border: 1px solid #E1E1E1;
-			border-radius: 5px;
-		}
-		.table {
-			margin-bottom: 3rem;
-		}
-		.table td, .table th {
-			vertical-align: middle;
-		}
-		.table-sm td, .table-sm th {
-		    padding: .3rem .9rem;
-		}
-		.table .thead-dark th {
-		    color: #fff;
-		    background-color: #205F9E;
-		    border-color: #235281;
-		}
-		.color1 {
-		    background-color: #E9EDF4 !important;
-		}
-		.color2 {
-		    background-color: #D0D8E8 !important;
-		}
-	</style>
+	<title>DP2 - Assignment 3 - REST API Documentation</title>
 
 	</head>
 	
 	<body>
 
 		<div class="container">
-			<h3>Distributed Programming II</h2>
-			<h5>Assignment 3b - REST API Documentation</h5>
-			<h5>Student: Fabio Bulgarella (s237094)</h5>
 
-			<br>
 			<div class="white-box">
-				<h3>Catalog Resource</h3>
-				<table class="table table-sm table-bordered">
+
+				<div class="header text-center">
+					<h1>Distributed Programming II</h1>
+					<h5>Assignment 3 - REST API Documentation</h5>
+					<h5>Student: Fabio Bulgarella (s237094)</h5>
+				</div>
+				<p class="text-bold text-center">This document provides a description about the conceptual structure of resources (including mappings of them to URLs), a list of allowed operation and supported methods, examples of request and response relatively the third assignment of the course Distributed Programming II (A.Y. 2017/2018).</p>
+
+				<h2 class="margin-top-6">REST Service Resources Design</h2>
+				<h4>Catalog Resource</h4>
+				<table class="table table-sm">
 					<thead class="thead-dark">
 						<tr>
 							<th>Resources</th>
@@ -73,8 +50,8 @@
 					</tbody>
 				</table>
 
-				<h3>Nffgs Resource</h3>
-				<table class="table table-sm table-bordered">
+				<h4>Nffgs Resource</h4>
+				<table class="table table-sm">
 					<thead class="thead-dark">
 						<tr>
 							<th>Resources</th>
@@ -91,31 +68,31 @@
 							<td>set of all nffgs (without nodes for scalability reasons)</td>
 						</tr>
 						<tr class="color2">
-							<th>{id}</th>
+							<th>&searr; {id}</th>
 							<td>nffgs/{id}</td>
 							<td>nffg</td>
 							<td>single nffg</td>
 						</tr>
 						<tr class="color1">
-							<th>nodes</th>
+							<th>&searr;&searr; nodes</th>
 							<td>nffgs/{id}/nodes</td>
 							<td></td>
 							<td>set of all nodes</td>
 						</tr>
 						<tr class="color2">
-							<th>{id}</th>
+							<th>&searr;&searr;&searr; {id}</th>
 							<td>nffgs/{id}/nodes/{id}</td>
 							<td>node</td>
 							<td>single node</td>
 						</tr>
 						<tr class="color1">
-							<th>links</th>
+							<th>&searr;&searr;&searr;&searr; links</th>
 							<td>nffgs/{id}/nodes/{id}/links</td>
 							<td></td>
 							<td>set of all links</td>
 						</tr>
 						<tr class="color1">
-							<th>reachableHosts</th>
+							<th>&searr;&searr;&searr;&searr; reachableHosts</th>
 							<td>nffgs/{id}/nodes/{id}/reachableHosts</td>
 							<td>hosts</td>
 							<td>set of all reachable hosts</td>
@@ -123,8 +100,8 @@
 					</tbody>
 				</table>
 
-				<h3>Hosts Resource</h3>
-				<table class="table table-sm table-bordered">
+				<h4>Hosts Resource</h4>
+				<table class="table table-sm">
 					<thead class="thead-dark">
 						<tr>
 							<th>Resources</th>
@@ -138,10 +115,10 @@
 							<th>hosts</th>
 							<td>hosts</td>
 							<td>hosts</td>
-							<td>set of all hosts</td>
+							<td>set of all hosts (without allocated nodes)</td>
 						</tr>
 						<tr class="color2">
-							<th>{id}</th>
+							<th>&searr; {id}</th>
 							<td>hosts/{id}</td>
 							<td>host</td>
 							<td>single host</td>
@@ -149,8 +126,8 @@
 					</tbody>
 				</table>
 
-				<h3>Connections Resource</h3>
-				<table class="table table-sm table-bordered">
+				<h4>Connections Resource</h4>
+				<table class="table table-sm">
 					<thead class="thead-dark">
 						<tr>
 							<th>Resources</th>
@@ -167,7 +144,7 @@
 							<td>set of all connections</td>
 						</tr>
 						<tr class="color2">
-							<th>{host1}/{host2}</th>
+							<th>&searr; {host1}/{host2}</th>
 							<td>connections/{host1}/{host2}</td>
 							<td>connection</td>
 							<td>single connection</td>
@@ -175,8 +152,9 @@
 					</tbody>
 				</table>
 
-				<h4>Operations on Resources</h4>
-				<table class="table table-sm table-bordered">
+				<h2 class="margin-top-6">Operations on Resources</h2>
+				<p class="text-bold">This table give a description of designed resources and allowed methods, with relative request and response body and possible status code returned by REST service.<br>It is based on PDF description of Assignment 3a (design part).</p>
+				<table class="table table-sm">
 					<thead class="thead-dark">
 						<tr>
 							<th>Resource</th>
@@ -188,43 +166,64 @@
 						</tr>
 					</thead>
 					<tbody>
+
 						<tr class="color1">
-							<th>catalog</th>
-							<td>GET</td>
+							<th rowspan="2">catalog</th>
+							<td rowspan="2">GET</td>
 							<td></td>
 							<td>200 OK</td>
 							<td>catalog</td>
-							<td>get the whole VNFs collection</td>
+							<td>get the whole VNF collection</td>
 						</tr>
+						<tr class="color1">
+							<td></td>
+							<td>500 Internal Server Error</td>
+							<td></td>
+							<td>server error, try later</td>
+						</tr>
+
 						<tr class="color2">
-							<th rowspan="4">nffgs</th>
-							<td>GET</td>
+							<th rowspan="6">nffgs</th>
+							<td rowspan="2">GET</td>
 							<td></td>
 							<td>200 OK</td>
 							<td>nffgs</td>
-							<td>get the whole Nffgs collection</td>
+							<td>get the whole Nffg collection (without nodes)</td>
 						</tr>
-						<tr class="color1">
-							<td rowspan="3">POST</td>
-							<td rowspan="3">nffg</td>
+						<tr class="color2">
+							<td></td>
+							<td>500 Internal Server Error</td>
+							<td></td>
+							<td>server error, try later</td>
+						</tr>
+
+						<tr class="color2">
+							<td rowspan="4">POST</td>
+							<td rowspan="4">nffg</td>
 							<td>200 OK</td>
 							<td>nffg</td>
 							<td>create and allocate a complete Nffg</td>
 						</tr>
 						<tr class="color2">
+							<td>400 Bad Request</td>
+							<td></td>
+							<td>xml request body malformed</td>
+						</tr>
+						<tr class="color2">
 							<td>409 Conflict</td>
 							<td></td>
-							<td>allocation failed</td>
+							<td>nffg allocation failed</td>
 						</tr>
-						<tr class="color1">
+						<tr class="color2">
 							<td>500 Internal Server Error</td>
 							<td></td>
 							<td>server error, try later</td>
 						</tr>
-						<tr class="color2">
-							<th rowspan="3">nffg/{id}</th>
-							<td rowspan="2">GET</td>
-							<td rowspan="2"></td>
+
+						<tr class="color1">
+							<th rowspan="6">nffgs/{id}</th>
+							<td rowspan="3">GET</td>
+							<td rowspan="3"></td>
 							<td>200 OK</td>
 							<td>nffg</td>
 							<td>get a complete Nffg</td>
@@ -232,26 +231,721 @@
 						<tr class="color1">
 							<td>404 Not Found</td>
 							<td></td>
-							<td>nffg not present</td>
+							<td>nffg not found</td>
+						</tr>
+						<tr class="color1">
+							<td>500 Internal Server Error</td>
+							<td></td>
+							<td>server error, try later</td>
+						</tr>
+
+						<tr class="color1">
+							<td rowspan="3">DELETE<sub><span class="label label-error">501</span></sub></td>
+							<td rowspan="3"></td>
+							<td>204 No Content</td>
+							<td></td>
+							<td>undeploy and remove a complete Nffg</td>
+						</tr>
+						<tr class="color1">
+							<td>404 Not Found</td>
+							<td></td>
+							<td>nffg not found</td>
+						</tr>
+						<tr class="color1">
+							<td>500 Internal Server Error</td>
+							<td></td>
+							<td>server error, try later</td>
+						</tr>
+
+						<tr class="color2">
+							<th rowspan="5">nffgs/{id}/nodes</th>
+							<td rowspan="5">POST</td>
+							<td rowspan="5">node</td>
+							<td>200 OK</td>
+							<td>node</td>
+							<td>create and allocate a Node (without links)</td>
 						</tr>
 						<tr class="color2">
-							<td>DELETE</td>
+							<td>400 Bad Request</td>
 							<td></td>
-							<td>501 Not Implemented</td>
-							<td></td>
-							<td>this method will be implemented later on</td>
+							<td>xml request body malformed</td>
 						</tr>
+						<tr class="color2">
+							<td>403 Forbidden</td>
+							<td></td>
+							<td>not applicable on selected resource</td>
+						</tr>
+						<tr class="color2">
+							<td>409 Conflict</td>
+							<td></td>
+							<td>node allocation failed</td>
+						</tr>
+						<tr class="color2">
+							<td>500 Internal Server Error</td>
+							<td></td>
+							<td>server error, try later</td>
+						</tr>
+
+						<tr class="color1">
+							<th rowspan="7">nffgs/{id}/nodes/{id}</th>
+							<td rowspan="3">GET</td>
+							<td rowspan="3"></td>
+							<td>200 OK</td>
+							<td>node</td>
+							<td>get a complete Node</td>
+						</tr>
+						<tr class="color1">
+							<td>404 Not Found</td>
+							<td></td>
+							<td>node not found</td>
+						</tr>
+						<tr class="color1">
+							<td>500 Internal Server Error</td>
+							<td></td>
+							<td>server error, try later</td>
+						</tr>
+
+						<tr class="color1">
+							<td rowspan="4">DELETE<sub><span class="label label-error">501</span></sub></td>
+							<td rowspan="4"></td>
+							<td>204 No Content</td>
+							<td></td>
+							<td>remove a complete Node</td>
+						</tr>
+						<tr class="color1">
+							<td>404 Not Found</td>
+							<td></td>
+							<td>node not found</td>
+						</tr>
+						<tr class="color1">
+							<td>409 Conflict</td>
+							<td></td>
+							<td>can't proceed, remove first in/outcoming links</td>
+						</tr>
+						<tr class="color1">
+							<td>500 Internal Server Error</td>
+							<td></td>
+							<td>server error, try later</td>
+						</tr>
+
+						<tr class="color2">
+							<th rowspan="5">nffgs/{id}/nodes/{id}/links</th>
+							<td rowspan="5">POST</td>
+							<td rowspan="5">link</td>
+							<td>200 OK</td>
+							<td>link</td>
+							<td>create a Link</td>
+						</tr>
+						<tr class="color2">
+							<td>400 Bad Request</td>
+							<td></td>
+							<td>xml request body malformed</td>
+						</tr>
+						<tr class="color2">
+							<td>403 Forbidden</td>
+							<td></td>
+							<td>not applicable on selected resource</td>
+						</tr>
+						<tr class="color2">
+							<td>409 Conflict</td>
+							<td></td>
+							<td>link already present, try to set overwrite attribute</td>
+						</tr>
+						<tr class="color2">
+							<td>500 Internal Server Error</td>
+							<td></td>
+							<td>server error, try later</td>
+						</tr>
+
+						<tr class="color1">
+							<th rowspan="3">nffgs/{id}/nodes/{id}/links/{id}</th>
+							<td rowspan="3">DELETE<sub><span class="label label-error">501</span></sub></td>
+							<td rowspan="3"></td>
+							<td>204 No Content</td>
+							<td></td>
+							<td>remove a Link</td>
+						</tr>
+						<tr class="color1">
+							<td>404 Not Found</td>
+							<td></td>
+							<td>link not found</td>
+						</tr>
+						<tr class="color1">
+							<td>500 Internal Server Error</td>
+							<td></td>
+							<td>server error, try later</td>
+						</tr>
+
+						<tr class="color2">
+							<th rowspan="3">nffgs/{id}/nodes/{id}/reachableHosts</th>
+							<td rowspan="3">GET</td>
+							<td rowspan="3"></td>
+							<td>200 OK</td>
+							<td>hosts</td>
+							<td>get reachable Hosts for seleceted Node</td>
+						</tr>
+						<tr class="color2">
+							<td>404 Not Found</td>
+							<td></td>
+							<td>node not found</td>
+						</tr>
+						<tr class="color2">
+							<td>500 Internal Server Error</td>
+							<td></td>
+							<td>server error, try later</td>
+						</tr>
+
+						<tr class="color1">
+							<th rowspan="2">hosts</th>
+							<td rowspan="2">GET</td>
+							<td></td>
+							<td>200 OK</td>
+							<td>hosts</td>
+							<td>get the whole Host collection (without allocated nodes)</td>
+						</tr>
+						<tr class="color1">
+							<td></td>
+							<td>500 Internal Server Error</td>
+							<td></td>
+							<td>server error, try later</td>
+						</tr>
+
+						<tr class="color2">
+							<th rowspan="3">hosts/{id}</th>
+							<td rowspan="3">GET</td>
+							<td rowspan="3"></td>
+							<td>200 OK</td>
+							<td>host</td>
+							<td>get a complete Host</td>
+						</tr>
+						<tr class="color2">
+							<td>404 Not Found</td>
+							<td></td>
+							<td>host not found</td>
+						</tr>
+						<tr class="color2">
+							<td>500 Internal Server Error</td>
+							<td></td>
+							<td>server error, try later</td>
+						</tr>
+
+						<tr class="color1">
+							<th rowspan="2">connections</th>
+							<td rowspan="2">GET</td>
+							<td></td>
+							<td>200 OK</td>
+							<td>connections</td>
+							<td>get the whole connections collection</td>
+						</tr>
+						<tr class="color1">
+							<td></td>
+							<td>500 Internal Server Error</td>
+							<td></td>
+							<td>server error, try later</td>
+						</tr>
+
+						<tr class="color2">
+							<th rowspan="3">connections/{host1}/{host2}</th>
+							<td rowspan="3">GET</td>
+							<td rowspan="3"></td>
+							<td>200 OK</td>
+							<td>connection</td>
+							<td>get a specific connection</td>
+						</tr>
+						<tr class="color2">
+							<td>404 Not Found</td>
+							<td></td>
+							<td>connection not found</td>
+						</tr>
+						<tr class="color2">
+							<td>500 Internal Server Error</td>
+							<td></td>
+							<td>server error, try later</td>
+						</tr>
+
 					</tbody>
 				</table>
+
+				<h2 class="margin-top-6">Implemented OPERATIONS whit Examples</h2>
+				<p class="text-bold">Here is present a short documentation of all actually implemented methods with relatives example about request and response of each method.<br>It is based on PDF description of Assignment 3b (implementation part).</p>
+
+				<h5>Get VNFs catalog</h5>
+				<div class="operation">
+					<p><span class="label label-success">GET</span>http://localhost:8080/NfvDeployer/rest/catalog</p>
+					<p><span class="label label-success">Content-Type</span>application/xml</p>
+					<p><span class="label label-success">Responses</span>200 OK, 500 Internal Server Error</p>
+					
+					<h6>Example Request:</h6>
+					<div class="operation">
+						<p><span class="text-bold">GET</span>http://localhost:8080/NfvDeployer/rest/catalog</p>
+					</div>
+
+					<h6>Example Response:</h6>
+					<div class="operation">
+						<p><span class="text-bold">200 OK</span></p>
+						<pre class="code" data-lang="XML"><code class="xml">
+&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;yes&quot;?&gt;
+&lt;catalog xmlns=&quot;http://www.example.org/nfvInfo&quot;&gt;
+    &lt;vnf name=&quot;MAILCLIENTt&quot; functionalType=&quot;MAIL_CLIENT&quot; reqMemory=&quot;19&quot; reqStorage=&quot;30&quot;/&gt;
+    &lt;vnf name=&quot;MAILSERVERt&quot; functionalType=&quot;MAIL_SERVER&quot; reqMemory=&quot;110&quot; reqStorage=&quot;7700&quot;/&gt;
+    &lt;vnf name=&quot;FWd&quot; functionalType=&quot;FW&quot; reqMemory=&quot;99&quot; reqStorage=&quot;120&quot;/&gt;
+    &lt;vnf name=&quot;CACHEa&quot; functionalType=&quot;CACHE&quot; reqMemory=&quot;87&quot; reqStorage=&quot;590&quot;/&gt;
+    &lt;vnf name=&quot;CACHEb&quot; functionalType=&quot;CACHE&quot; reqMemory=&quot;14&quot; reqStorage=&quot;840&quot;/&gt;
+    &lt;vnf name=&quot;WEBCLIENTt&quot; functionalType=&quot;WEB_CLIENT&quot; reqMemory=&quot;19&quot; reqStorage=&quot;510&quot;/&gt;
+    &lt;vnf name=&quot;WEBSERVERt&quot; functionalType=&quot;WEB_SERVER&quot; reqMemory=&quot;720&quot; reqStorage=&quot;4900&quot;/&gt;
+    &lt;vnf name=&quot;CACHEc&quot; functionalType=&quot;CACHE&quot; reqMemory=&quot;64&quot; reqStorage=&quot;190&quot;/&gt;
+    &lt;vnf name=&quot;VPNe&quot; functionalType=&quot;VPN&quot; reqMemory=&quot;84&quot; reqStorage=&quot;500&quot;/&gt;
+&lt;/catalog&gt;
+						</code></pre>
+					</div>
+				</div>
+
+				<h5 class="margin-top-2">Get Nffg list (without nodes for scalability reasons)</h5>
+				<div class="operation">
+					<p><span class="label label-success">GET</span>http://localhost:8080/NfvDeployer/rest/nffgs</p>
+					<p><span class="label label-success">Content-Type</span>application/xml</p>
+					<p><span class="label label-success">Responses</span>200 OK, 500 Internal Server Error</p>
+					
+					<h6>Example Request:</h6>
+					<div class="operation">
+						<p><span class="text-bold">GET</span>http://localhost:8080/NfvDeployer/rest/nffgs</p>
+					</div>
+
+					<h6>Example Response:</h6>
+					<div class="operation">
+						<p><span class="text-bold">200 OK</span></p>
+						<pre class="code" data-lang="XML"><code class="xml">
+&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;yes&quot;?&gt;
+&lt;nffgs xmlns=&quot;http://www.example.org/nfvInfo&quot;&gt;
+    &lt;nffg name=&quot;Nffg1&quot; deployTime=&quot;2018-01-23T15:54:24.197+01:00&quot;/&gt;
+    &lt;nffg name=&quot;Nffg0&quot; deployTime=&quot;2018-01-23T15:54:23.417+01:00&quot;/&gt;
+&lt;/nffgs&gt;
+						</code></pre>
+					</div>
+				</div>
+
+				<h5 class="margin-top-2">Deploy a complete Nffg</h5>
+				<div class="operation">
+					<p><span class="label label-success">POST</span>http://localhost:8080/NfvDeployer/rest/nffgs</p>
+					<p><span class="label label-success">Content-Type</span>application/xml</p>
+					<p><span class="label label-success">Responses</span>200 OK, 400 Bad Request, 409 Conflict, 500 Internal Server Error</p>
+					
+					<h6>Example Request:</h6>
+					<div class="operation">
+						<p><span class="text-bold">POST</span>http://localhost:8080/NfvDeployer/rest/nffgs</p>
+						<pre class="code" data-lang="XML"><code class="xml">
+&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;yes&quot;?&gt;
+&lt;nffg xmlns=&quot;http://www.example.org/nfvInfo&quot;&gt;
+    &lt;node name=&quot;node0&quot; vnfRef=&quot;MAILCLIENTt&quot; hostRef=&quot;H5&quot;&gt;
+        &lt;link dstNode=&quot;node3&quot; minThroughput=&quot;0.0&quot; maxLatency=&quot;0&quot;/&gt;
+        &lt;link dstNode=&quot;node5&quot; minThroughput=&quot;0.0&quot; maxLatency=&quot;0&quot;/&gt;
+    &lt;/node&gt;
+    &lt;node name=&quot;node1&quot; vnfRef=&quot;WEBCLIENTt&quot; hostRef=&quot;H6&quot;&gt;
+        &lt;link dstNode=&quot;node7&quot; minThroughput=&quot;0.0&quot; maxLatency=&quot;0&quot;/&gt;
+    &lt;/node&gt;
+    &lt;node name=&quot;node2&quot; vnfRef=&quot;MAILCLIENTt&quot; hostRef=&quot;H7&quot;&gt;
+        &lt;link dstNode=&quot;node7&quot; minThroughput=&quot;0.0&quot; maxLatency=&quot;0&quot;/&gt;
+        &lt;link dstNode=&quot;node5&quot; minThroughput=&quot;0.0&quot; maxLatency=&quot;0&quot;/&gt;
+    &lt;/node&gt;
+    &lt;node name=&quot;node3&quot; vnfRef=&quot;VPNe&quot; hostRef=&quot;H4&quot;/&gt;
+    &lt;node name=&quot;node4&quot; vnfRef=&quot;WEBSERVERt&quot; hostRef=&quot;H0&quot;&gt;
+        &lt;link dstNode=&quot;node5&quot; minThroughput=&quot;0.0&quot; maxLatency=&quot;0&quot;/&gt;
+        &lt;link dstNode=&quot;node6&quot; minThroughput=&quot;0.0&quot; maxLatency=&quot;0&quot;/&gt;
+    &lt;/node&gt;
+    &lt;node name=&quot;node5&quot; vnfRef=&quot;FWd&quot; hostRef=&quot;H5&quot;&gt;
+        &lt;link dstNode=&quot;node7&quot; minThroughput=&quot;0.0&quot; maxLatency=&quot;0&quot;/&gt;
+        &lt;link dstNode=&quot;node0&quot; minThroughput=&quot;0.0&quot; maxLatency=&quot;0&quot;/&gt;
+        &lt;link dstNode=&quot;node2&quot; minThroughput=&quot;0.0&quot; maxLatency=&quot;0&quot;/&gt;
+    &lt;/node&gt;
+    &lt;node name=&quot;node6&quot; vnfRef=&quot;VPNe&quot; hostRef=&quot;H3&quot;&gt;
+        &lt;link dstNode=&quot;node5&quot; minThroughput=&quot;0.0&quot; maxLatency=&quot;0&quot;/&gt;
+        &lt;link dstNode=&quot;node8&quot; minThroughput=&quot;0.0&quot; maxLatency=&quot;0&quot;/&gt;
+        &lt;link dstNode=&quot;node4&quot; minThroughput=&quot;0.0&quot; maxLatency=&quot;0&quot;/&gt;
+    &lt;/node&gt;
+    &lt;node name=&quot;node7&quot; vnfRef=&quot;FWd&quot; hostRef=&quot;H1&quot;&gt;
+        &lt;link dstNode=&quot;node4&quot; minThroughput=&quot;0.0&quot; maxLatency=&quot;0&quot;/&gt;
+        &lt;link dstNode=&quot;node1&quot; minThroughput=&quot;0.0&quot; maxLatency=&quot;0&quot;/&gt;
+        &lt;link dstNode=&quot;node5&quot; minThroughput=&quot;0.0&quot; maxLatency=&quot;0&quot;/&gt;
+    &lt;/node&gt;
+    &lt;node name=&quot;node8&quot; vnfRef=&quot;CACHEc&quot; hostRef=&quot;H6&quot;&gt;
+        &lt;link dstNode=&quot;node2&quot; minThroughput=&quot;0.0&quot; maxLatency=&quot;0&quot;/&gt;
+    &lt;/node&gt;
+&lt;/nffg&gt;
+						</code></pre>
+						<p><span class="text-bold">*</span>Nffg's "name" attribute is optional, if present it is considered just as a suggestion.</p>
+					</div>
+
+					<h6>Example Response:</h6>
+					<div class="operation">
+						<p><span class="text-bold">200 OK</span></p>
+						<pre class="code" data-lang="XML"><code class="xml">
+&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;yes&quot;?&gt;
+&lt;nffg xmlns=&quot;http://www.example.org/nfvInfo&quot; name=&quot;Nffg8&quot; deployTime=&quot;2018-01-23T23:02:00.965+01:00&quot;&gt;
+    &lt;node name=&quot;MAILCLIENTt0Nffg8&quot; vnfRef=&quot;MAILCLIENTt&quot; hostRef=&quot;H5&quot;&gt;
+        &lt;link name=&quot;Link0&quot; dstNode=&quot;VPNe0Nffg8&quot; minThroughput=&quot;0.0&quot; maxLatency=&quot;0&quot;/&gt;
+        &lt;link name=&quot;Link1&quot; dstNode=&quot;FWd0Nffg8&quot; minThroughput=&quot;0.0&quot; maxLatency=&quot;0&quot;/&gt;
+    &lt;/node&gt;
+    &lt;node name=&quot;WEBCLIENTt0Nffg8&quot; vnfRef=&quot;WEBCLIENTt&quot; hostRef=&quot;H6&quot;&gt;
+        &lt;link name=&quot;Link2&quot; dstNode=&quot;FWd1Nffg8&quot; minThroughput=&quot;0.0&quot; maxLatency=&quot;0&quot;/&gt;
+    &lt;/node&gt;
+    &lt;node name=&quot;MAILCLIENTt1Nffg8&quot; vnfRef=&quot;MAILCLIENTt&quot; hostRef=&quot;H7&quot;&gt;
+        &lt;link name=&quot;Link3&quot; dstNode=&quot;FWd1Nffg8&quot; minThroughput=&quot;0.0&quot; maxLatency=&quot;0&quot;/&gt;
+        &lt;link name=&quot;Link4&quot; dstNode=&quot;FWd0Nffg8&quot; minThroughput=&quot;0.0&quot; maxLatency=&quot;0&quot;/&gt;
+    &lt;/node&gt;
+    &lt;node name=&quot;VPNe0Nffg8&quot; vnfRef=&quot;VPNe&quot; hostRef=&quot;H4&quot;/&gt;
+    &lt;node name=&quot;WEBSERVERt0Nffg8&quot; vnfRef=&quot;WEBSERVERt&quot; hostRef=&quot;H0&quot;&gt;
+        &lt;link name=&quot;Link5&quot; dstNode=&quot;FWd0Nffg8&quot; minThroughput=&quot;0.0&quot; maxLatency=&quot;0&quot;/&gt;
+        &lt;link name=&quot;Link6&quot; dstNode=&quot;VPNe1Nffg8&quot; minThroughput=&quot;0.0&quot; maxLatency=&quot;0&quot;/&gt;
+    &lt;/node&gt;
+    &lt;node name=&quot;FWd0Nffg8&quot; vnfRef=&quot;FWd&quot; hostRef=&quot;H5&quot;&gt;
+        &lt;link name=&quot;Link7&quot; dstNode=&quot;FWd1Nffg8&quot; minThroughput=&quot;0.0&quot; maxLatency=&quot;0&quot;/&gt;
+        &lt;link name=&quot;Link8&quot; dstNode=&quot;MAILCLIENTt0Nffg8&quot; minThroughput=&quot;0.0&quot; maxLatency=&quot;0&quot;/&gt;
+        &lt;link name=&quot;Link9&quot; dstNode=&quot;MAILCLIENTt1Nffg8&quot; minThroughput=&quot;0.0&quot; maxLatency=&quot;0&quot;/&gt;
+    &lt;/node&gt;
+    &lt;node name=&quot;VPNe1Nffg8&quot; vnfRef=&quot;VPNe&quot; hostRef=&quot;H3&quot;&gt;
+        &lt;link name=&quot;Link10&quot; dstNode=&quot;FWd0Nffg8&quot; minThroughput=&quot;0.0&quot; maxLatency=&quot;0&quot;/&gt;
+        &lt;link name=&quot;Link11&quot; dstNode=&quot;CACHEc0Nffg8&quot; minThroughput=&quot;0.0&quot; maxLatency=&quot;0&quot;/&gt;
+        &lt;link name=&quot;Link12&quot; dstNode=&quot;WEBSERVERt0Nffg8&quot; minThroughput=&quot;0.0&quot; maxLatency=&quot;0&quot;/&gt;
+    &lt;/node&gt;
+    &lt;node name=&quot;FWd1Nffg8&quot; vnfRef=&quot;FWd&quot; hostRef=&quot;H1&quot;&gt;
+        &lt;link name=&quot;Link13&quot; dstNode=&quot;WEBSERVERt0Nffg8&quot; minThroughput=&quot;0.0&quot; maxLatency=&quot;0&quot;/&gt;
+        &lt;link name=&quot;Link14&quot; dstNode=&quot;WEBCLIENTt0Nffg8&quot; minThroughput=&quot;0.0&quot; maxLatency=&quot;0&quot;/&gt;
+        &lt;link name=&quot;Link15&quot; dstNode=&quot;FWd0Nffg8&quot; minThroughput=&quot;0.0&quot; maxLatency=&quot;0&quot;/&gt;
+    &lt;/node&gt;
+    &lt;node name=&quot;CACHEc0Nffg8&quot; vnfRef=&quot;CACHEc&quot; hostRef=&quot;H6&quot;&gt;
+        &lt;link name=&quot;Link16&quot; dstNode=&quot;MAILCLIENTt1Nffg8&quot; minThroughput=&quot;0.0&quot; maxLatency=&quot;0&quot;/&gt;
+    &lt;/node&gt;
+&lt;/nffg&gt;
+						</code></pre>
+					</div>
+				</div>
+
+				<h5 class="margin-top-2">Get Nffg by ID (name)</h5>
+				<div class="operation">
+					<p><span class="label label-success">GET</span>http://localhost:8080/NfvDeployer/rest/nffgs/{id}</p>
+					<p><span class="label label-success">Content-Type</span>application/xml</p>
+					<p><span class="label label-success">Responses</span>200 OK, 404 Not Found, 500 Internal Server Error</p>
+					
+					<h6>Example Request:</h6>
+					<div class="operation">
+						<p><span class="text-bold">GET</span>http://localhost:8080/NfvDeployer/rest/nffgs/Nffg0</p>
+					</div>
+
+					<h6>Example Response:</h6>
+					<div class="operation">
+						<p><span class="text-bold">200 OK</span></p>
+						<pre class="code" data-lang="XML"><code class="xml">
+&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;yes&quot;?&gt;
+&lt;nffg xmlns=&quot;http://www.example.org/nfvInfo&quot; name=&quot;Nffg0&quot; deployTime=&quot;2018-01-23T23:31:44.681+01:00&quot;&gt;
+    &lt;node name=&quot;WEBSERVERt1Nffg0&quot; vnfRef=&quot;WEBSERVERt&quot; hostRef=&quot;H3&quot;&gt;
+        &lt;link name=&quot;Link6&quot; dstNode=&quot;VPNa0Nffg0&quot; minThroughput=&quot;0.0&quot; maxLatency=&quot;0&quot;/&gt;
+    &lt;/node&gt;
+    &lt;node name=&quot;MAILSERVERt0Nffg0&quot; vnfRef=&quot;MAILSERVERt&quot; hostRef=&quot;H2&quot;&gt;
+        &lt;link name=&quot;Link4&quot; dstNode=&quot;VPNa0Nffg0&quot; minThroughput=&quot;0.0&quot; maxLatency=&quot;0&quot;/&gt;
+    &lt;/node&gt;
+    &lt;node name=&quot;WEBCLIENTt0Nffg0&quot; vnfRef=&quot;WEBCLIENTt&quot; hostRef=&quot;H0&quot;&gt;
+        &lt;link name=&quot;Link0&quot; dstNode=&quot;VPNa0Nffg0&quot; minThroughput=&quot;0.0&quot; maxLatency=&quot;0&quot;/&gt;
+    &lt;/node&gt;
+    &lt;node name=&quot;WEBCLIENTt1Nffg0&quot; vnfRef=&quot;WEBCLIENTt&quot; hostRef=&quot;H1&quot;&gt;
+        &lt;link name=&quot;Link2&quot; dstNode=&quot;VPNa0Nffg0&quot; minThroughput=&quot;0.0&quot; maxLatency=&quot;0&quot;/&gt;
+    &lt;/node&gt;
+    &lt;node name=&quot;VPNa0Nffg0&quot; vnfRef=&quot;VPNa&quot; hostRef=&quot;H0&quot;&gt;
+        &lt;link name=&quot;Link1&quot; dstNode=&quot;WEBCLIENTt0Nffg0&quot; minThroughput=&quot;0.0&quot; maxLatency=&quot;0&quot;/&gt;
+        &lt;link name=&quot;Link3&quot; dstNode=&quot;WEBCLIENTt1Nffg0&quot; minThroughput=&quot;0.0&quot; maxLatency=&quot;0&quot;/&gt;
+        &lt;link name=&quot;Link5&quot; dstNode=&quot;MAILSERVERt0Nffg0&quot; minThroughput=&quot;0.0&quot; maxLatency=&quot;0&quot;/&gt;
+        &lt;link name=&quot;Link7&quot; dstNode=&quot;WEBSERVERt1Nffg0&quot; minThroughput=&quot;0.0&quot; maxLatency=&quot;0&quot;/&gt;
+    &lt;/node&gt;
+    &lt;node name=&quot;CACHEb0Nffg0&quot; vnfRef=&quot;CACHEb&quot; hostRef=&quot;H0&quot;&gt;
+        &lt;link name=&quot;Link8&quot; dstNode=&quot;MAILSERVERt0Nffg0&quot; minThroughput=&quot;0.0&quot; maxLatency=&quot;0&quot;/&gt;
+    &lt;/node&gt;
+&lt;/nffg&gt;
+						</code></pre>
+					</div>
+				</div>
+
+				<h5 class="margin-top-2">DELETE Nffg by ID (name)</h5>
+				<div class="operation">
+					<p><span class="label label-error">DELETE</span>http://localhost:8080/NfvDeployer/rest/nffgs/{id}</p>
+					<p><span class="label label-error">Content-Type</span>application/xml</p>
+					<p><span class="label label-error">Responses</span>501 Not Implemented</p>
+					
+					<h6>Example Request:</h6>
+					<div class="operation">
+						<p><span class="text-bold">DELETE</span>http://localhost:8080/NfvDeployer/rest/nffgs/Nffg6</p>
+					</div>
+
+					<h6>Example Response:</h6>
+					<div class="operation">
+						<p><span class="text-bold">501 Not Implemented</span></p>
+					</div>
+				</div>
+
+				<h5 class="margin-top-2">Create and allocate Node without links</h5>
+				<div class="operation">
+					<p><span class="label label-success">POST</span>http://localhost:8080/NfvDeployer/rest/nffgs/{id}/nodes</p>
+					<p><span class="label label-success">Content-Type</span>application/xml</p>
+					<p><span class="label label-success">Responses</span>200 OK, 400 Bad Request, 403 Forbidden, 409 Conflict, 500 Internal Server Error</p>
+					
+					<h6>Example Request:</h6>
+					<div class="operation">
+						<p><span class="text-bold">POST</span>http://localhost:8080/NfvDeployer/rest/nffgs/Nffg1/nodes</p>
+						<pre class="code" data-lang="XML"><code class="xml">
+&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;yes&quot;?&gt;
+&lt;node xmlns=&quot;http://www.example.org/nfvInfo&quot; name=&quot;dummy&quot; vnfRef=&quot;MAILCLIENTt&quot; hostRef=&quot;H1&quot;/&gt;
+						</code></pre>
+						<p><span class="text-bold">*</span>Node's "hostRef" attribute is optional, if present it is considered just as a suggestion.</p>
+					</div>
+
+					<h6>Example Response:</h6>
+					<div class="operation">
+						<p><span class="text-bold">200 OK</span></p>
+						<pre class="code" data-lang="XML"><code class="xml">
+&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;yes&quot;?&gt;
+&lt;node xmlns=&quot;http://www.example.org/nfvInfo&quot; name=&quot;MAILCLIENTt3Nffg1&quot; vnfRef=&quot;MAILCLIENTt&quot; hostRef=&quot;H1&quot;/&gt;
+						</code></pre>
+					</div>
+				</div>
+
+				<h5 class="margin-top-2">Get Node by ID (name)</h5>
+				<div class="operation">
+					<p><span class="label label-success">GET</span>http://localhost:8080/NfvDeployer/rest/nffgs/{id}/nodes/{id}</p>
+					<p><span class="label label-success">Content-Type</span>application/xml</p>
+					<p><span class="label label-success">Responses</span>200 OK, 404 Not Found, 500 Internal Server Error</p>
+					
+					<h6>Example Request:</h6>
+					<div class="operation">
+						<p><span class="text-bold">GET</span>http://localhost:8080/NfvDeployer/rest/nffgs/Nffg0/nodes/VPNa0Nffg0</p>
+					</div>
+
+					<h6>Example Response:</h6>
+					<div class="operation">
+						<p><span class="text-bold">200 OK</span></p>
+						<pre class="code" data-lang="XML"><code class="xml">
+&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;yes&quot;?&gt;
+&lt;node xmlns=&quot;http://www.example.org/nfvInfo&quot; name=&quot;VPNa0Nffg0&quot; vnfRef=&quot;VPNa&quot; hostRef=&quot;H0&quot;&gt;
+    &lt;link name=&quot;Link1&quot; dstNode=&quot;WEBCLIENTt0Nffg0&quot; minThroughput=&quot;0.0&quot; maxLatency=&quot;0&quot;/&gt;
+    &lt;link name=&quot;Link3&quot; dstNode=&quot;WEBCLIENTt1Nffg0&quot; minThroughput=&quot;0.0&quot; maxLatency=&quot;0&quot;/&gt;
+    &lt;link name=&quot;Link5&quot; dstNode=&quot;MAILSERVERt0Nffg0&quot; minThroughput=&quot;0.0&quot; maxLatency=&quot;0&quot;/&gt;
+    &lt;link name=&quot;Link7&quot; dstNode=&quot;WEBSERVERt1Nffg0&quot; minThroughput=&quot;0.0&quot; maxLatency=&quot;0&quot;/&gt;
+&lt;/node&gt;
+						</code></pre>
+					</div>
+				</div>
+
+				<h5 class="margin-top-2">DELETE Node by ID (name)</h5>
+				<div class="operation">
+					<p><span class="label label-error">DELETE</span>http://localhost:8080/NfvDeployer/rest/nffgs/{id}/nodes/{id}</p>
+					<p><span class="label label-error">Content-Type</span>application/xml</p>
+					<p><span class="label label-error">Responses</span>501 Not Implemented</p>
+					
+					<h6>Example Request:</h6>
+					<div class="operation">
+						<p><span class="text-bold">DELETE</span>http://localhost:8080/NfvDeployer/rest/nffgs/Nffg2/nodes/MAILSERVERt0Nffg2</p>
+					</div>
+
+					<h6>Example Response:</h6>
+					<div class="operation">
+						<p><span class="text-bold">501 Not Implemented</span></p>
+					</div>
+				</div>
+
+				<h5 class="margin-top-2">Create Link between two nodes</h5>
+				<div class="operation">
+					<p><span class="label label-success">POST</span>http://localhost:8080/NfvDeployer/rest/nffgs/{id}/nodes/{srcNode}/links</p>
+					<p><span class="label label-success">Content-Type</span>application/xml</p>
+					<p><span class="label label-success">Responses</span>200 OK, 400 Bad Request, 403 Forbidden, 409 Conflict, 500 Internal Server Error</p>
+					
+					<h6>Example Request:</h6>
+					<div class="operation">
+						<p><span class="text-bold">POST</span>http://localhost:8080/NfvDeployer/rest/nffgs/Nffg0/nodes/VPNa0Nffg0/links</p>
+						<pre class="code" data-lang="XML"><code class="xml">
+&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;yes&quot;?&gt;
+&lt;link xmlns=&quot;http://www.example.org/nfvInfo&quot; dstNode=&quot;CACHEb0Nffg0&quot; minThroughput=&quot;0.0&quot; maxLatency=&quot;0&quot;/&gt;
+						</code></pre>
+					</div>
+
+					<h6>Example Response:</h6>
+					<div class="operation">
+						<p><span class="text-bold">200 OK</span></p>
+						<pre class="code" data-lang="XML"><code class="xml">
+&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;yes&quot;?&gt;
+&lt;link xmlns=&quot;http://www.example.org/nfvInfo&quot; name=&quot;Link9&quot; dstNode=&quot;CACHEb0Nffg0&quot; minThroughput=&quot;0.0&quot; maxLatency=&quot;0&quot;/&gt;
+						</code></pre>
+					</div>
+				</div>
+
+				<h5 class="margin-top-2">DELETE Link by ID (name)</h5>
+				<div class="operation">
+					<p><span class="label label-error">DELETE</span>http://localhost:8080/NfvDeployer/rest/nffgs/{id}/nodes/{id}/links/{id}</p>
+					<p><span class="label label-error">Content-Type</span>application/xml</p>
+					<p><span class="label label-error">Responses</span>501 Not Implemented</p>
+					
+					<h6>Example Request:</h6>
+					<div class="operation">
+						<p><span class="text-bold">DELETE</span>http://localhost:8080/NfvDeployer/rest/nffgs/Nffg2/nodes/MAILSERVERt0Nffg2/links/Link5</p>
+					</div>
+
+					<h6>Example Response:</h6>
+					<div class="operation">
+						<p><span class="text-bold">501 Not Implemented</span></p>
+					</div>
+				</div>
+
+				<h5 class="margin-top-2">Get Reachable Hosts relative to the Node with ID specified</h5>
+				<div class="operation">
+					<p><span class="label label-success">GET</span>http://localhost:8080/NfvDeployer/rest/nffgs/{id}/nodes/{id}/reachableHosts</p>
+					<p><span class="label label-success">Content-Type</span>application/xml</p>
+					<p><span class="label label-success">Responses</span>200 OK, 404 Not Found, 500 Internal Server Error</p>
+					
+					<h6>Example Request:</h6>
+					<div class="operation">
+						<p><span class="text-bold">GET</span>http://localhost:8080/NfvDeployer/rest/nffgs/Nffg0/nodes/VPNa0Nffg0/reachableHosts</p>
+					</div>
+
+					<h6>Example Response:</h6>
+					<div class="operation">
+						<p><span class="text-bold">200 OK</span></p>
+						<pre class="code" data-lang="XML"><code class="xml">
+&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;yes&quot;?&gt;
+&lt;hosts xmlns=&quot;http://www.example.org/nfvInfo&quot;&gt;
+    &lt;host name=&quot;H0&quot; maxVnfs=&quot;15&quot; memory=&quot;6900&quot; storage=&quot;88000&quot;/&gt;
+    &lt;host name=&quot;H1&quot; maxVnfs=&quot;14&quot; memory=&quot;5800&quot; storage=&quot;17000&quot;/&gt;
+    &lt;host name=&quot;H2&quot; maxVnfs=&quot;18&quot; memory=&quot;9000&quot; storage=&quot;88000&quot;/&gt;
+    &lt;host name=&quot;H3&quot; maxVnfs=&quot;11&quot; memory=&quot;6000&quot; storage=&quot;33000&quot;/&gt;
+&lt;/hosts&gt;
+						</code></pre>
+					</div>
+				</div>
+
+				<h5 class="margin-top-2">Get Host list (without allocated nodes for scalability reasons)</h5>
+				<div class="operation">
+					<p><span class="label label-success">GET</span>http://localhost:8080/NfvDeployer/rest/hosts</p>
+					<p><span class="label label-success">Content-Type</span>application/xml</p>
+					<p><span class="label label-success">Responses</span>200 OK, 500 Internal Server Error</p>
+					
+					<h6>Example Request:</h6>
+					<div class="operation">
+						<p><span class="text-bold">GET</span>http://localhost:8080/NfvDeployer/rest/hosts</p>
+					</div>
+
+					<h6>Example Response:</h6>
+					<div class="operation">
+						<p><span class="text-bold">200 OK</span></p>
+						<pre class="code" data-lang="XML"><code class="xml">
+&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;yes&quot;?&gt;
+&lt;hosts xmlns=&quot;http://www.example.org/nfvInfo&quot;&gt;
+    &lt;host name=&quot;H0&quot; maxVnfs=&quot;19&quot; memory=&quot;6600&quot; storage=&quot;77000&quot;/&gt;
+    &lt;host name=&quot;H1&quot; maxVnfs=&quot;17&quot; memory=&quot;2500&quot; storage=&quot;20000&quot;/&gt;
+    &lt;host name=&quot;H2&quot; maxVnfs=&quot;19&quot; memory=&quot;7300&quot; storage=&quot;28000&quot;/&gt;
+    &lt;host name=&quot;H3&quot; maxVnfs=&quot;7&quot; memory=&quot;6300&quot; storage=&quot;80000&quot;/&gt;
+    &lt;host name=&quot;H4&quot; maxVnfs=&quot;16&quot; memory=&quot;2300&quot; storage=&quot;82000&quot;/&gt;
+    &lt;host name=&quot;H5&quot; maxVnfs=&quot;15&quot; memory=&quot;7100&quot; storage=&quot;17000&quot;/&gt;
+&lt;/hosts&gt;
+						</code></pre>
+					</div>
+				</div>
+
+				<h5 class="margin-top-2">Get Host by ID (name) and allocated nodes</h5>
+				<div class="operation">
+					<p><span class="label label-success">GET</span>http://localhost:8080/NfvDeployer/rest/hosts/{id}</p>
+					<p><span class="label label-success">Content-Type</span>application/xml</p>
+					<p><span class="label label-success">Responses</span>200 OK, 404 Not Found, 500 Internal Server Error</p>
+					
+					<h6>Example Request:</h6>
+					<div class="operation">
+						<p><span class="text-bold">GET</span>http://localhost:8080/NfvDeployer/rest/hosts/H2</p>
+					</div>
+
+					<h6>Example Response:</h6>
+					<div class="operation">
+						<p><span class="text-bold">200 OK</span></p>
+						<pre class="code" data-lang="XML"><code class="xml">
+&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;yes&quot;?&gt;
+&lt;host xmlns=&quot;http://www.example.org/nfvInfo&quot; name=&quot;H2&quot; maxVnfs=&quot;19&quot; memory=&quot;7300&quot; storage=&quot;28000&quot;&gt;
+    &lt;nodeRef name=&quot;MAILCLIENTt2Nffg0&quot;/&gt;
+    &lt;nodeRef name=&quot;DPIe2Nffg0&quot;/&gt;
+    &lt;nodeRef name=&quot;FWb8Nffg0&quot;/&gt;
+    &lt;nodeRef name=&quot;FWd1Nffg1&quot;/&gt;
+    &lt;nodeRef name=&quot;MAILSERVERt0Nffg1&quot;/&gt;
+&lt;/host&gt;
+						</code></pre>
+					</div>
+				</div>
+
+				<h5 class="margin-top-2">Get the whole Connection list</h5>
+				<div class="operation">
+					<p><span class="label label-success">GET</span>http://localhost:8080/NfvDeployer/rest/connections</p>
+					<p><span class="label label-success">Content-Type</span>application/xml</p>
+					<p><span class="label label-success">Responses</span>200 OK, 500 Internal Server Error</p>
+					
+					<h6>Example Request:</h6>
+					<div class="operation">
+						<p><span class="text-bold">GET</span>http://localhost:8080/NfvDeployer/rest/connections</p>
+					</div>
+
+					<h6>Example Response:</h6>
+					<div class="operation">
+						<p><span class="text-bold">200 OK</span></p>
+						<pre class="code" data-lang="XML"><code class="xml">
+&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;yes&quot;?&gt;
+&lt;connections xmlns=&quot;http://www.example.org/nfvInfo&quot;&gt;
+    &lt;connection host1=&quot;H0&quot; host2=&quot;H1&quot; throughput=&quot;84.33&quot; latency=&quot;53&quot;/&gt;
+    &lt;connection host1=&quot;H1&quot; host2=&quot;H0&quot; throughput=&quot;69.2&quot; latency=&quot;53&quot;/&gt;
+    &lt;connection host1=&quot;H0&quot; host2=&quot;H0&quot; throughput=&quot;87.13&quot; latency=&quot;0&quot;/&gt;
+    &lt;connection host1=&quot;H0&quot; host2=&quot;H3&quot; throughput=&quot;60.0&quot; latency=&quot;70&quot;/&gt;
+    &lt;connection host1=&quot;H1&quot; host2=&quot;H2&quot; throughput=&quot;99.82&quot; latency=&quot;10&quot;/&gt;
+    &lt;connection host1=&quot;H2&quot; host2=&quot;H1&quot; throughput=&quot;75.18&quot; latency=&quot;10&quot;/&gt;
+    &lt;connection host1=&quot;H3&quot; host2=&quot;H0&quot; throughput=&quot;18.21&quot; latency=&quot;70&quot;/&gt;
+    &lt;connection host1=&quot;H0&quot; host2=&quot;H2&quot; throughput=&quot;75.89&quot; latency=&quot;53&quot;/&gt;
+    &lt;connection host1=&quot;H1&quot; host2=&quot;H1&quot; throughput=&quot;78.18&quot; latency=&quot;0&quot;/&gt;
+    &lt;connection host1=&quot;H2&quot; host2=&quot;H0&quot; throughput=&quot;20.08&quot; latency=&quot;53&quot;/&gt;
+    &lt;connection host1=&quot;H1&quot; host2=&quot;H4&quot; throughput=&quot;41.74&quot; latency=&quot;55&quot;/&gt;
+    &lt;connection host1=&quot;H2&quot; host2=&quot;H3&quot; throughput=&quot;88.84&quot; latency=&quot;32&quot;/&gt;
+    &lt;connection host1=&quot;H3&quot; host2=&quot;H2&quot; throughput=&quot;55.75&quot; latency=&quot;32&quot;/&gt;
+    &lt;connection host1=&quot;H4&quot; host2=&quot;H1&quot; throughput=&quot;14.88&quot; latency=&quot;55&quot;/&gt;
+    &lt;connection host1=&quot;H0&quot; host2=&quot;H4&quot; throughput=&quot;26.11&quot; latency=&quot;11&quot;/&gt;
+    &lt;connection host1=&quot;H1&quot; host2=&quot;H3&quot; throughput=&quot;51.33&quot; latency=&quot;24&quot;/&gt;
+    &lt;connection host1=&quot;H2&quot; host2=&quot;H2&quot; throughput=&quot;68.82&quot; latency=&quot;0&quot;/&gt;
+    &lt;connection host1=&quot;H3&quot; host2=&quot;H1&quot; throughput=&quot;52.53&quot; latency=&quot;24&quot;/&gt;
+    &lt;connection host1=&quot;H4&quot; host2=&quot;H0&quot; throughput=&quot;42.87&quot; latency=&quot;11&quot;/&gt;
+    &lt;connection host1=&quot;H3&quot; host2=&quot;H4&quot; throughput=&quot;72.79&quot; latency=&quot;69&quot;/&gt;
+    &lt;connection host1=&quot;H4&quot; host2=&quot;H3&quot; throughput=&quot;71.67&quot; latency=&quot;69&quot;/&gt;
+    &lt;connection host1=&quot;H2&quot; host2=&quot;H4&quot; throughput=&quot;95.54&quot; latency=&quot;57&quot;/&gt;
+    &lt;connection host1=&quot;H3&quot; host2=&quot;H3&quot; throughput=&quot;53.96&quot; latency=&quot;0&quot;/&gt;
+    &lt;connection host1=&quot;H4&quot; host2=&quot;H2&quot; throughput=&quot;79.42&quot; latency=&quot;57&quot;/&gt;
+    &lt;connection host1=&quot;H4&quot; host2=&quot;H4&quot; throughput=&quot;10.43&quot; latency=&quot;0&quot;/&gt;
+&lt;/connections&gt;
+						</code></pre>
+					</div>
+				</div>
+
+				<h5 class="margin-top-2">Get Connection from Host1 to Host2</h5>
+				<div class="operation">
+					<p><span class="label label-success">GET</span>http://localhost:8080/NfvDeployer/rest/connections/{host1}/{host2}</p>
+					<p><span class="label label-success">Content-Type</span>application/xml</p>
+					<p><span class="label label-success">Responses</span>200 OK, 404 Not Found, 500 Internal Server Error</p>
+					
+					<h6>Example Request:</h6>
+					<div class="operation">
+						<p><span class="text-bold">GET</span>http://localhost:8080/NfvDeployer/rest/connections/H1/H4</p>
+					</div>
+
+					<h6>Example Response:</h6>
+					<div class="operation">
+						<p><span class="text-bold">200 OK</span></p>
+						<pre class="code" data-lang="XML"><code class="xml">
+&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;yes&quot;?&gt;
+&lt;connection xmlns=&quot;http://www.example.org/nfvInfo&quot; host1=&quot;H1&quot; host2=&quot;H4&quot; throughput=&quot;41.74&quot; latency=&quot;55&quot;/&gt;
+						</code></pre>
+					</div>
+				</div>
+
 			</div>
 				
 		</div>
 
+		<script src="highlight/highlight.pack.js"></script>
+		<script>hljs.initHighlightingOnLoad();</script>
 
-		<!-- Optional JavaScript -->
-		<!-- jQuery first, then Popper.js, then Bootstrap JS -->
-		<script src="js/jquery-3.2.1.slim.min.js"></script>
-		<script src="js/popper.min.js"></script>
-		<script src="js/bootstrap.min.js"></script>
 	</body>
 </html>
