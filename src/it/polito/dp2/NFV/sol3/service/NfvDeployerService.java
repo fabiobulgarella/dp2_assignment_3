@@ -246,8 +246,8 @@ public class NfvDeployerService
 				LinkType newLink = objFactory.createLinkType();
 				newLink.setName(newLinkName);
 				newLink.setDstNode(dstNodeName);
-				newLink.setMinThroughput( link.getMinThroughput() );
-				newLink.setMaxLatency( link.getMaxLatency() );
+				newLink.setMinThroughput( link.getMinThroughput() != null ? link.getMinThroughput() : 0 );
+				newLink.setMaxLatency( link.getMaxLatency() != null ? link.getMaxLatency() : 0 );
 				
 				// Add generated link to links list
 				newNode.getLink().add(newLink);
@@ -403,8 +403,8 @@ public class NfvDeployerService
 				if (link.isOverwrite() != null && link.isOverwrite())
 				{
 					// Overwrite link information
-					link_t.setMinThroughput( link.getMinThroughput() );
-					link_t.setMaxLatency( link.getMaxLatency() );
+					link_t.setMinThroughput( link.getMinThroughput() != null ? link.getMinThroughput() : 0 );
+					link_t.setMaxLatency( link.getMaxLatency() != null ? link.getMaxLatency() : 0 );
 					
 					return objFactory.createLink(link_t);
 				}
@@ -421,8 +421,8 @@ public class NfvDeployerService
 		LinkType newLink = objFactory.createLinkType();
 		newLink.setName(newLinkName);
 		newLink.setDstNode( link.getDstNode() );
-		newLink.setMinThroughput( link.getMinThroughput() );
-		newLink.setMaxLatency( link.getMaxLatency() );
+		newLink.setMinThroughput( link.getMinThroughput() != null ? link.getMinThroughput() : 0 );
+		newLink.setMaxLatency( link.getMaxLatency() != null ? link.getMaxLatency() : 0 );
 		
 		// Load link into neo4j
 		try {
