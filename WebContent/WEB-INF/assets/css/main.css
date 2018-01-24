@@ -1,0 +1,104 @@
+body {
+	background-color: #EEEEEE;
+}
+div.white-box {
+	margin: 1.5em 1em;
+	padding: 5em;
+	background-color: #fff;
+	border: 1px solid #E1E1E1;
+	border-radius: 5px;
+}
+.header {
+	margin-bottom: 2em;
+}
+.header > h1 {
+	margin-bottom: 0;
+	margin-left: -.08em;
+}
+.header > h5 {
+	margin-bottom: 0;
+}
+.header a {
+	font-weight: bold;
+	color: #205F9E;
+}
+
+.table {
+	font-size: .75rem;
+	margin-bottom: 3em;
+	border: 2px solid #235281;
+}
+.table td, .table th {
+	vertical-align: middle;
+}
+.table tr.color1 td, .table tr.color1 th {
+	border: 1px solid #D0D8E8;
+}
+.table tr.color2 td, .table tr.color2 th {
+	border: 1px solid #E9EDF4;
+}
+.table-sm td, .table-sm th {
+	padding: .3em .9em;
+}
+.table .thead-dark th {
+	color: #fff;
+	background-color: #205F9E;
+	border-color: #235281;
+}
+.color1 {
+	background-color: #E9EDF4 !important;
+}
+.color2 {
+	background-color: #D0D8E8 !important;
+}
+.operation {
+	padding: .5rem 1.5rem 0;
+}
+.operation p {
+	margin-bottom: .5rem;
+}
+.operation p>span {
+	margin-right: .5rem;
+}
+.operation h6 {
+	margin-top: 1rem;
+}
+.code code {
+	background-color: #EEE;
+	border-radius: 5px;
+	border: 1px solid #DDD;
+}
+.margin-top-2 {
+	margin-top: 2rem;
+}
+.margin-top-3 {
+	margin-top: 3.5rem;
+}
+.margin-top-6 {
+	margin-top: 6rem;
+}
+.padding-left-1 {
+	padding-left: 1.2rem !important;
+}
+.padding-left-2 {
+	padding-left: 1.9rem !important;
+}
+.padding-left-3 {
+	padding-left: 2.6rem !important;
+}
+.padding-left-4 {
+	padding-left: 3.3rem !important;
+}
+sub {
+	margin-left: .3em;
+	bottom: -.35em;
+}
+sub .label {
+	padding: .1em .15em .14em .28em;
+}
+.urls-maps {
+	margin-bottom: 2rem;
+}
+.urls-maps p {
+	margin-bottom: .1rem;
+}

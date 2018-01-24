@@ -18,6 +18,10 @@ div.white-box {
 .header > h5 {
 	margin-bottom: 0;
 }
+.header a {
+	font-weight: bold;
+	color: #205F9E;
+}
 
 .table {
 	font-size: .75rem;
@@ -67,6 +71,9 @@ div.white-box {
 .margin-top-2 {
 	margin-top: 2rem;
 }
+.margin-top-3 {
+	margin-top: 3.5rem;
+}
 .margin-top-6 {
 	margin-top: 6rem;
 }
@@ -88,4 +95,10 @@ sub {
 }
 sub .label {
 	padding: .1em .15em .14em .28em;
+}
+.urls-maps {
+	margin-bottom: 2rem;
+}
+.urls-maps p {
+	margin-bottom: .1rem;
 }

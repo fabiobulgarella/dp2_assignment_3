@@ -20,7 +20,12 @@
     </xs:keyref>
   </xs:element>
   <xs:element name="nodes" type="nodesType" />
-  <xs:element name="node" type="nodeType" />
+  <xs:element name="node" type="nodeType">
+  	<xs:unique name="dstNodeUnique">
+      <xs:selector xpath="r:link" />
+      <xs:field xpath="@dstNode" />
+    </xs:unique>
+  </xs:element>
   <xs:element name="links" type="linksType" />
   <xs:element name="link" type="linkType" />
   <xs:element name="hosts" type="hostsType" />
