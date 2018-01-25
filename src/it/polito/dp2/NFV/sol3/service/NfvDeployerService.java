@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
+
 import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.NotFoundException;
@@ -119,9 +121,9 @@ public class NfvDeployerService
 	/*
 	 * NFFGS METHODS
 	 */
-	public synchronized JAXBElement<NffgsType> getNffgs()
+	public JAXBElement<NffgsType> getNffgs()
 	{
-		NffgsType nffgs = objFactory.createNffgsType();
+		NffgsType newNffgs = objFactory.createNffgsType();
 		
 		for (NffgType nffg: nffgMap.values())
 		{
@@ -129,23 +131,53 @@ public class NfvDeployerService
 			newNffg.setName( nffg.getName() );
 			newNffg.setDeployTime( nffg.getDeployTime() );
 			
-			nffgs.getNffg().add(newNffg);
+			newNffgs.getNffg().add(newNffg);
 		}
 		
-		return objFactory.createNffgs(nffgs);
+		return objFactory.createNffgs(newNffgs);
 	}
 	
-	public synchronized JAXBElement<NffgType> getNffg(String nffgName)
+	public JAXBElement<NffgType> getNffg(String nffgName)
 	{
 		NffgType nffg = nffgMap.get(nffgName);
 		
 		if (nffg == null)
 			throw new NotFoundException();
 		
-		return objFactory.createNffg(nffg);
+		NffgType newNffg = objFactory.createNffgType();
+		newNffg.setName( nffg.getName() );
+		newNffg.setDeployTime( nffg.getDeployTime() );
+		
+		for (NodeType node: nodeListMap.get(nffgName))
+		{
+			NodeType newNode = objFactory.createNodeType();
+			newNode.setName( node.getName() );
+			newNode.setVnfRef( node.getVnfRef() );
+			newNode.setHostRef( node.getHostRef() );
+			
+			List<LinkType> linkList = linkListMap.get( node.getName() );
+			
+			synchronized (linkList)
+			{
+				for (LinkType link: linkList)
+				{
+					LinkType newLink = objFactory.createLinkType();
+					newLink.setName( link.getName() );
+					newLink.setDstNode( link.getDstNode() );
+					newLink.setMinThroughput( link.getMinThroughput() );
+					newLink.setMaxLatency( link.getMaxLatency() );
+					
+					newNode.getLink().add(newLink);
+				}
+			}
+			
+			newNffg.getNode().add(newNode);
+		}
+		
+		return objFactory.createNffg(newNffg);
 	}
 	
-	public synchronized JAXBElement<NodeType> getNode(String nffgName, String nodeName)
+	public JAXBElement<NodeType> getNode(String nffgName, String nodeName)
 	{
 		// Check if related nffg is deployed
 		if ( !isDeployed(nffgName) )
@@ -156,7 +188,28 @@ public class NfvDeployerService
 		if ( node == null || !nodeListMap.get(nffgName).contains(node) )
 			throw new NotFoundException();
 		
-		return objFactory.createNode(node);
+		NodeType newNode = objFactory.createNodeType();
+		newNode.setName( node.getName() );
+		newNode.setVnfRef( node.getVnfRef() );
+		newNode.setHostRef( node.getHostRef() );
+		
+		List<LinkType> linkList = linkListMap.get( node.getName() );
+		
+		synchronized (linkList)
+		{
+			for (LinkType link: linkList)
+			{
+				LinkType newLink = objFactory.createLinkType();
+				newLink.setName( link.getName() );
+				newLink.setDstNode( link.getDstNode() );
+				newLink.setMinThroughput( link.getMinThroughput() );
+				newLink.setMaxLatency( link.getMaxLatency() );
+				
+				newNode.getLink().add(newLink);
+			}
+		}
+		
+		return objFactory.createNode(newNode);
 	}
 	
 	public synchronized JAXBElement<NffgType> postNffg(NffgType nffg)
@@ -185,7 +238,7 @@ public class NfvDeployerService
 		newNffg.setName(nffgName);
 		
 		// Create a newNodeList related to this Nffg
-		List<NodeType> newNodeList = new ArrayList<NodeType>();
+		List<NodeType> newNodeList = new CopyOnWriteArrayList<NodeType>();
 		
 		for (NodeType node: nffg.getNode())
 		{
@@ -205,7 +258,7 @@ public class NfvDeployerService
 			newNode.setHostRef( node.getHostRef() );
 			
 			// Add generated node to nodeList and to nodeMap
-			newNffg.getNode().add(newNode);
+			// newNffg.getNode().add(newNode);
 			newNodeList.add(newNode);
 			nodeMapTMP.put(newNodeName, newNode);
 			
@@ -224,7 +277,7 @@ public class NfvDeployerService
 			String newNodeName = newNode.getName();
 			
 			// Get related links
-			List<LinkType> newLinkList = new ArrayList<LinkType>();
+			List<LinkType> newLinkList = new CopyOnWriteArrayList<LinkType>();
 			
 			for (LinkType link: node.getLink())
 			{
@@ -250,7 +303,7 @@ public class NfvDeployerService
 				newLink.setMaxLatency( link.getMaxLatency() != null ? link.getMaxLatency() : 0 );
 				
 				// Add generated link to links list
-				newNode.getLink().add(newLink);
+				// newNode.getLink().add(newLink);
 				newLinkList.add(newLink);
 				newNffgLinkList.add(newLink);
 			}
@@ -302,11 +355,11 @@ public class NfvDeployerService
 		}
 		
 		// If all is OK, update data maps
+		NfvDeployerDB.setHostsStatusMap(hostsStatusMap);
+		nffgLinkListMap.putAll(nffgLinkListMapTMP);
+		linkListMap.putAll(linkListMapTMP);
 		nodeListMap.put(newNffg.getName(), newNodeList);
 		nodeMap.putAll(nodeMapTMP);
-		linkListMap.putAll(linkListMapTMP);
-		nffgLinkListMap.putAll(nffgLinkListMapTMP);
-		NfvDeployerDB.setHostsStatusMap(hostsStatusMap);
 		nffgMap.put(newNffg.getName(), newNffg);
 		
 		return objFactory.createNffg(newNffg);
@@ -335,7 +388,7 @@ public class NfvDeployerService
 		newNode.setHostRef( node.getHostRef() );
 		
 		// Add generated node to nodeMapTMP
-		nodeMapTMP.put(node.getName(), newNode);
+		nodeMapTMP.put(newNodeName, newNode);
 		
 		// Check if nodes can be allocated into the IN system
 		if ( !checkNodesAllocation(nodeMapTMP, hostsStatusMap) )
@@ -362,13 +415,13 @@ public class NfvDeployerService
 		nodeRefListMap.get(newNode.getHostRef()).add(nodeRef);
 		
 		// Create a linkList for future link adding
-		List<LinkType> newLinkList = new ArrayList<LinkType>();
+		List<LinkType> newLinkList = new CopyOnWriteArrayList<LinkType>();
 		
 		// If all it's ok, update data maps
-		nodeListMap.get(nffgName).add(newNode);
+		// nffgMap.get(nffgName).getNode().add(newNode);
 		NfvDeployerDB.setHostsStatusMap(hostsStatusMap);
 		linkListMap.put(newNodeName, newLinkList);
-		nffgMap.get(nffgName).getNode().add(newNode);
+		nodeListMap.get(nffgName).add(newNode);
 		nodeMap.put(newNode.getName(), newNode);
 		
 		return objFactory.createNode(newNode);
@@ -395,22 +448,25 @@ public class NfvDeployerService
 		List<LinkType> nffgLinkList = nffgLinkListMap.get(nffgName);
 		
 		// Check if already exists this link
-		for (LinkType link_t: linkList)
+		synchronized (linkList)
 		{
-			if ( link_t.getDstNode().equals( link.getDstNode() ) )
+			for (LinkType link_t: linkList)
 			{
-				// Check if overwrite attribute is set
-				if (link.isOverwrite() != null && link.isOverwrite())
+				if ( link_t.getDstNode().equals( link.getDstNode() ) )
 				{
-					// Overwrite link information
-					link_t.setMinThroughput( link.getMinThroughput() != null ? link.getMinThroughput() : 0 );
-					link_t.setMaxLatency( link.getMaxLatency() != null ? link.getMaxLatency() : 0 );
+					// Check if overwrite attribute is set
+					if (link.isOverwrite() != null && link.isOverwrite())
+					{
+						// Overwrite link information
+						link_t.setMinThroughput( link.getMinThroughput() != null ? link.getMinThroughput() : 0 );
+						link_t.setMaxLatency( link.getMaxLatency() != null ? link.getMaxLatency() : 0 );
+						
+						return objFactory.createLink(link_t);
+					}
 					
-					return objFactory.createLink(link_t);
+					// If overwrite attribute is not set abort
+					throw new ConflictException();
 				}
-				
-				// If overwrite attribute is not set abort
-				throw new ConflictException();
 			}
 		}
 		
@@ -433,9 +489,9 @@ public class NfvDeployerService
 		}
 		
 		// Update data
+		// srcNode.getLink().add(newLink);
 		linkList.add(newLink);
 		nffgLinkList.add(newLink);
-		srcNode.getLink().add(newLink);
 		
 		return objFactory.createLink(newLink);
 	}

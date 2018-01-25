@@ -227,6 +227,6 @@
 	<target name="make-zip" description="Make zip to be submitted">
 		<zip destfile="${sol.zip}" 
 			basedir="${lab3.location}" 
-			includes="${sol.build.file} custom/* xsd/* doc/* WebContent/**/* ${sol3.dir}/service/**/*.java ${sol3.dir}/client1/**/*.java ${sol3.dir}/client2/**/*.java" />
+			includes="${sol.build.file} custom/* xsd/* doc/**/* WebContent/**/* ${sol3.dir}/service/**/*.java ${sol3.dir}/client1/**/*.java ${sol3.dir}/client2/**/*.java" />
 	</target>
 </project>
