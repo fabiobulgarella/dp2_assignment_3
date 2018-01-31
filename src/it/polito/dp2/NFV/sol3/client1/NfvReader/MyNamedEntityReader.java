@@ -11,7 +11,7 @@ public class MyNamedEntityReader implements NamedEntityReader
 	{
 		this.name = name;
 	}
-
+	
 	@Override
 	public String getName()
 	{

@@ -155,18 +155,18 @@ public class NfvDeployerInit
 				// Add generated connection to connections map
 				connectionMap.put(sri.getName() + srj.getName(), connection);
 			}
-		}		
+		}
 	}
 	
 	private NffgType initNffg0()
 	{
 		// Get Nffg0
 		NffgReader nffg_r = monitor.getNffg("Nffg0");
-	
+		
 		// Create a new nffg object
 		NffgType nffg = objFactory.createNffgType();
 		nffg.setName( nffg_r.getName() );
-
+		
 		// Get nodes
 		for (NodeReader nr: nffg_r.getNodes())
 		{
@@ -197,5 +197,5 @@ public class NfvDeployerInit
 		// Return NffgType Object of Nffg0 for consequent deploy
 		return nffg;
 	}
-	
+
 }

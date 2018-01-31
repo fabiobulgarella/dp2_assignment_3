@@ -13,16 +13,17 @@ public class MyConnectionPerformanceReader implements ConnectionPerformanceReade
 		this.latency = latency;
 		this.throughput = throughput;
 	}
-
+	
 	@Override
 	public int getLatency()
 	{
 		return latency;
 	}
-
+	
 	@Override
 	public float getThroughput()
 	{
 		return throughput;
 	}
+
 }

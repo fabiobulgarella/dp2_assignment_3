@@ -28,7 +28,7 @@ public class MyNfvReader implements NfvReader
 	private HashMap<String, NodeReader> nodeMap;
 	private HashMap<String, HostReader> hostMap;
 	private HashMap<String, ConnectionPerformanceReader> connectionMap;
-
+	
 	// Class constructor
 	public MyNfvReader(NfvType nfv)
 	{
@@ -38,7 +38,7 @@ public class MyNfvReader implements NfvReader
 		vnfSet = new HashSet<VNFTypeReader>();
 		nffgSet = new HashSet<NffgReader>();
 		hostSet = new HashSet<HostReader>();
-				
+		
 		// Create hash-map for reference entities between them
 		vnfMap = new HashMap<String, VNFTypeReader>();
 		nffgMap = new HashMap<String, NffgReader>();
@@ -77,7 +77,7 @@ public class MyNfvReader implements NfvReader
 			connectionMap.put(connection.getHost1() + connection.getHost2(), newConnection_r);
 		}
 	}
-
+	
 	@Override
 	public ConnectionPerformanceReader getConnectionPerformance(HostReader arg0, HostReader arg1)
 	{
@@ -89,7 +89,7 @@ public class MyNfvReader implements NfvReader
 		
 		return connectionMap.get(arg0.getName() + arg1.getName());
 	}
-
+	
 	@Override
 	public HostReader getHost(String arg0)
 	{
@@ -101,13 +101,13 @@ public class MyNfvReader implements NfvReader
 		
 		return hostMap.get(arg0);
 	}
-
+	
 	@Override
 	public Set<HostReader> getHosts()
 	{
 		return hostSet;
 	}
-
+	
 	@Override
 	public NffgReader getNffg(String arg0)
 	{
@@ -119,7 +119,7 @@ public class MyNfvReader implements NfvReader
 		
 		return nffgMap.get(arg0);
 	}
-
+	
 	@Override
 	public Set<NffgReader> getNffgs(Calendar arg0)
 	{
@@ -136,7 +136,7 @@ public class MyNfvReader implements NfvReader
 		
 		return set;
 	}
-
+	
 	@Override
 	public Set<VNFTypeReader> getVNFCatalog()
 	{

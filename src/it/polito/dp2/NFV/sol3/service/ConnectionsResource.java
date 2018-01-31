@@ -20,7 +20,7 @@ public class ConnectionsResource
 	public JAXBElement<ConnectionsType> getConnections()
 	{
 		return nfvService.getConnections();
-    }
+	}
 	
 	@GET
 	@Path("{host1}/{host2}")
@@ -28,5 +28,6 @@ public class ConnectionsResource
 	public JAXBElement<ConnectionType> getConnection(@PathParam("host1") String host1, @PathParam("host2") String host2)
 	{
 		return nfvService.getConnection(host1, host2);
-    }
+	}
+
 }

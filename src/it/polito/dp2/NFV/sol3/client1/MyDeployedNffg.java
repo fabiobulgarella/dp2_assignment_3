@@ -43,7 +43,7 @@ public class MyDeployedNffg implements DeployedNffg
 		// Instantiate ObjectFactory
 		objFactory = new ObjectFactory();
 	}
-
+	
 	@Override
 	public NodeReader addNode(VNFTypeReader type, String hostName) throws AllocationException, ServiceException
 	{
@@ -56,8 +56,8 @@ public class MyDeployedNffg implements DeployedNffg
 		NodeType responseNode;
 		
 		Response response = target.path("nffgs/" + nffgName + "/nodes")
-				                  .request(MediaType.APPLICATION_XML)
-				                  .post(Entity.entity(objFactory.createNode(newNode), MediaType.APPLICATION_XML));
+		                          .request(MediaType.APPLICATION_XML)
+		                          .post(Entity.entity(objFactory.createNode(newNode), MediaType.APPLICATION_XML));
 		
 		try {
 			if (response.getStatus() == 200)
@@ -66,7 +66,7 @@ public class MyDeployedNffg implements DeployedNffg
 				throw new AllocationException();
 			else
 				throw new ServiceException();
-		} 
+		}
 		finally {
 			response.close();
 		}
@@ -74,7 +74,7 @@ public class MyDeployedNffg implements DeployedNffg
 		// Build and return NodeReader response
 		return getReader().getNode( responseNode.getName() );
 	}
-
+	
 	@Override
 	public LinkReader addLink(NodeReader source, NodeReader dest, boolean overwrite) throws NoNodeException, LinkAlreadyPresentException, ServiceException
 	{
@@ -89,8 +89,8 @@ public class MyDeployedNffg implements DeployedNffg
 		LinkType responseLink = null;
 		
 		Response response = target.path("nffgs/" + nffgName + "/nodes/" + srcNodeName + "/links")
-                                  .request(MediaType.APPLICATION_XML)
-                                  .post(Entity.entity(objFactory.createLink(newLink), MediaType.APPLICATION_XML));
+		                          .request(MediaType.APPLICATION_XML)
+		                          .post(Entity.entity(objFactory.createLink(newLink), MediaType.APPLICATION_XML));
 		
 		try {
 			if (response.getStatus() == 200)
@@ -101,7 +101,7 @@ public class MyDeployedNffg implements DeployedNffg
 				throw new LinkAlreadyPresentException();
 			else
 				throw new ServiceException();
-		} 
+		}
 		finally {
 			response.close();
 		}
@@ -117,7 +117,7 @@ public class MyDeployedNffg implements DeployedNffg
 		
 		return resLink_r; 
 	}
-
+	
 	@Override
 	public NffgReader getReader() throws ServiceException
 	{
@@ -137,9 +137,9 @@ public class MyDeployedNffg implements DeployedNffg
 		
 		try {
 			nffgs = target.path("nffgs")
-					      .request()
-					      .accept(MediaType.APPLICATION_XML)
-					      .get(NffgsType.class);
+			              .request()
+			              .accept(MediaType.APPLICATION_XML)
+			              .get(NffgsType.class);
 		}
 		catch (ProcessingException pe) {
 			throw new ServiceException("Error during JAX-RS request processing", pe);
@@ -170,9 +170,9 @@ public class MyDeployedNffg implements DeployedNffg
 		
 		try {
 			nffg = target.path("nffgs/" + nffgName)
-					     .request()
-					     .accept(MediaType.APPLICATION_XML)
-					     .get(NffgType.class);
+			             .request()
+			             .accept(MediaType.APPLICATION_XML)
+			             .get(NffgType.class);
 		}
 		catch (ProcessingException pe) {
 			throw new ServiceException("Error during JAX-RS request processing", pe);

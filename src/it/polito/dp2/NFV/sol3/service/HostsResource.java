@@ -21,7 +21,7 @@ public class HostsResource
 	public JAXBElement<HostsType> getHosts()
 	{
 		return nfvService.getHosts();
-    }
+	}
 	
 	@GET
 	@Path("{hostName}")
@@ -29,5 +29,6 @@ public class HostsResource
 	public JAXBElement<HostType> getHost(@PathParam("hostName") String hostName)
 	{
 		return nfvService.getHost(hostName);
-    }
+	}
+
 }

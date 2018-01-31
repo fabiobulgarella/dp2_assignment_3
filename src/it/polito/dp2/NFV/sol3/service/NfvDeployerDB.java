@@ -124,4 +124,5 @@ public class NfvDeployerDB
 	{
 		hostsStatusMap = newHostsStatusMap;
 	}
+
 }

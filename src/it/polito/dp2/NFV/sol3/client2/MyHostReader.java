@@ -28,25 +28,25 @@ public class MyHostReader extends MyNamedEntityReader implements HostReader
 		this.nodeRefList = host.getNodeRef();
 		this.nodeMap = nodeMap;
 	}
-
+	
 	@Override
 	public int getAvailableMemory()
 	{
 		return availableMemory;
 	}
-
+	
 	@Override
 	public int getAvailableStorage()
 	{
 		return availableStorage;
 	}
-
+	
 	@Override
 	public int getMaxVNFs()
 	{
 		return maxVNFs;
 	}
-
+	
 	@Override
 	public Set<NodeReader> getNodes()
 	{

@@ -9,7 +9,7 @@ public class MyVNFTypeReader extends MyNamedEntityReader implements VNFTypeReade
 	private FunctionalType functionalType;
 	private int requiredMemory;
 	private int requiredStorage;
-
+	
 	// Class constructor
 	public MyVNFTypeReader(VnfType vnf)
 	{
@@ -24,13 +24,13 @@ public class MyVNFTypeReader extends MyNamedEntityReader implements VNFTypeReade
 	{
 		return functionalType;
 	}
-
+	
 	@Override
 	public int getRequiredMemory()
 	{
 		return requiredMemory;
 	}
-
+	
 	@Override
 	public int getRequiredStorage()
 	{

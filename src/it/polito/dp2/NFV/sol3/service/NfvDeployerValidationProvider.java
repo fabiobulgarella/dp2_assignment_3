@@ -37,17 +37,18 @@ public class NfvDeployerValidationProvider implements MessageBodyReader<JAXBElem
 	
 	// Class constructor
 	public NfvDeployerValidationProvider()
-	{	
+	{
 		logger = Logger.getLogger(NfvDeployerValidationProvider.class.getName());
 
-		try {			
+		try {
 			// Initialize JAXBContext and create unmarshaller
 			JAXBContext jc = JAXBContext.newInstance(jaxbPackage);
 			unmarshaller = jc.createUnmarshaller();
 			
 			// Retreive schema file
 			InputStream schemaStream = NfvDeployerValidationProvider.class.getResourceAsStream("/xsd/NfvDeployer.xsd");
-			if (schemaStream == null) {
+			if (schemaStream == null)
+			{
 				logger.log(Level.SEVERE, "xml schema file Not found.");
 				throw new IOException();
 			}
@@ -63,7 +64,7 @@ public class NfvDeployerValidationProvider implements MessageBodyReader<JAXBElem
 			logger.log(Level.SEVERE, "Error parsing xml schema file. Service will not work properly.", e);
 		}
 	}
-
+	
 	@Override
 	public boolean isReadable(Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType)
 	{

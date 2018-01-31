@@ -13,7 +13,7 @@ public class MyLinkReader extends MyNamedEntityReader implements LinkReader
 	private int latency;
 	private float throughput;
 	private HashMap<String, NodeReader> nodeMap;
-
+	
 	// Class constructor
 	public MyLinkReader(LinkType link, String srcNodeName, HashMap<String, NodeReader> nodeMap)
 	{
@@ -30,19 +30,19 @@ public class MyLinkReader extends MyNamedEntityReader implements LinkReader
 	{
 		return nodeMap.get(srcNodeName);
 	}
-
+	
 	@Override
 	public NodeReader getDestinationNode()
 	{
 		return nodeMap.get(dstNodeName);
 	}
-
+	
 	@Override
 	public int getLatency()
 	{
 		return latency;
 	}
-
+	
 	@Override
 	public float getThroughput()
 	{

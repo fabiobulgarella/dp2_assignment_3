@@ -39,7 +39,7 @@ public class MyNfvClient implements NfvClient
 	private ObjectFactory objFactory;
 	
 	private NfvType nfv;
-
+	
 	// Class constructor
 	public MyNfvClient(String serviceURL) throws NfvClientException
 	{
@@ -71,9 +71,9 @@ public class MyNfvClient implements NfvClient
 		
 		try {
 			catalog = target.path("catalog")
-					     .request()
-					     .accept(MediaType.APPLICATION_XML)
-					     .get(CatalogType.class);
+			                .request()
+			                .accept(MediaType.APPLICATION_XML)
+			                .get(CatalogType.class);
 		}
 		catch (ProcessingException pe) {
 			throw new NfvClientException("Error during JAX-RS request processing");
@@ -95,9 +95,9 @@ public class MyNfvClient implements NfvClient
 		
 		try {
 			hosts = target.path("hosts")
-					     .request()
-					     .accept(MediaType.APPLICATION_XML)
-					     .get(HostsType.class);
+			              .request()
+			              .accept(MediaType.APPLICATION_XML)
+			              .get(HostsType.class);
 		}
 		catch (ProcessingException pe) {
 			throw new NfvClientException("Error during JAX-RS request processing");
@@ -128,9 +128,9 @@ public class MyNfvClient implements NfvClient
 		
 		try {
 			host = target.path("hosts/" + hostName)
-					     .request()
-					     .accept(MediaType.APPLICATION_XML)
-					     .get(HostType.class);
+			             .request()
+			             .accept(MediaType.APPLICATION_XML)
+			             .get(HostType.class);
 		}
 		catch (ProcessingException pe) {
 			throw new NfvClientException("Error during JAX-RS request processing");
@@ -152,9 +152,9 @@ public class MyNfvClient implements NfvClient
 		
 		try {
 			connections = target.path("connections")
-					            .request()
-					            .accept(MediaType.APPLICATION_XML)
-					            .get(ConnectionsType.class);
+			                    .request()
+			                    .accept(MediaType.APPLICATION_XML)
+			                    .get(ConnectionsType.class);
 		}
 		catch (ProcessingException pe) {
 			throw new NfvClientException("Error during JAX-RS request processing");
@@ -219,8 +219,8 @@ public class MyNfvClient implements NfvClient
 		NffgType deployedNffg;
 		
 		Response response = target.path("nffgs")
-				                  .request(MediaType.APPLICATION_XML)
-				                  .post(Entity.entity(objFactory.createNffg(nffgType), MediaType.APPLICATION_XML));
+		                          .request(MediaType.APPLICATION_XML)
+		                          .post(Entity.entity(objFactory.createNffg(nffgType), MediaType.APPLICATION_XML));
 		
 		try {
 			if (response.getStatus() == 200)
@@ -229,14 +229,14 @@ public class MyNfvClient implements NfvClient
 				throw new AllocationException();
 			else
 				throw new ServiceException();
-		} 
+		}
 		finally {
 			response.close();
 		}
 		
 		return new MyDeployedNffg(target, nfv, deployedNffg.getName());
 	}
-
+	
 	@Override
 	public DeployedNffg getDeployedNffg(String name) throws UnknownEntityException, ServiceException
 	{
@@ -245,9 +245,9 @@ public class MyNfvClient implements NfvClient
 		
 		try {
 			deployedNffg = target.path("nffgs/" + name)
-					             .request()
-					             .accept(MediaType.APPLICATION_XML)
-					             .get(NffgType.class);
+			                     .request()
+			                     .accept(MediaType.APPLICATION_XML)
+			                     .get(NffgType.class);
 		}
 		catch (ProcessingException pe) {
 			throw new ServiceException("Error during JAX-RS request processing", pe);

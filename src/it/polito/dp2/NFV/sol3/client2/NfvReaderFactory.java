@@ -22,7 +22,7 @@ public class NfvReaderFactory extends it.polito.dp2.NFV.NfvReaderFactory
 {
 	private WebTarget target;
 	private ObjectFactory objFactory;
-
+	
 	@Override
 	public NfvReader newNfvReader() throws NfvReaderException
 	{
@@ -54,7 +54,7 @@ public class NfvReaderFactory extends it.polito.dp2.NFV.NfvReaderFactory
 		
 		return new MyNfvReader(nfv);
 	}
-
+	
 	private CatalogType getCatalog() throws NfvReaderException
 	{
 		// Call NfvDeployer REST Web Service
@@ -62,9 +62,9 @@ public class NfvReaderFactory extends it.polito.dp2.NFV.NfvReaderFactory
 		
 		try {
 			catalog = target.path("catalog")
-					     .request()
-					     .accept(MediaType.APPLICATION_XML)
-					     .get(CatalogType.class);
+			               .request()
+			               .accept(MediaType.APPLICATION_XML)
+			               .get(CatalogType.class);
 		}
 		catch (ProcessingException pe) {
 			throw new NfvReaderException("Error during JAX-RS request processing");
@@ -86,9 +86,9 @@ public class NfvReaderFactory extends it.polito.dp2.NFV.NfvReaderFactory
 		
 		try {
 			nffgs = target.path("nffgs")
-					      .request()
-					      .accept(MediaType.APPLICATION_XML)
-					      .get(NffgsType.class);
+			             .request()
+			             .accept(MediaType.APPLICATION_XML)
+			             .get(NffgsType.class);
 		}
 		catch (ProcessingException pe) {
 			throw new NfvReaderException("Error during JAX-RS request processing");
@@ -119,9 +119,9 @@ public class NfvReaderFactory extends it.polito.dp2.NFV.NfvReaderFactory
 		
 		try {
 			nffg = target.path("nffgs/" + nffgName)
-					     .request()
-					     .accept(MediaType.APPLICATION_XML)
-					     .get(NffgType.class);
+			             .request()
+			             .accept(MediaType.APPLICATION_XML)
+			             .get(NffgType.class);
 		}
 		catch (ProcessingException pe) {
 			throw new NfvReaderException("Error during JAX-RS request processing");
@@ -143,9 +143,9 @@ public class NfvReaderFactory extends it.polito.dp2.NFV.NfvReaderFactory
 		
 		try {
 			hosts = target.path("hosts")
-					     .request()
-					     .accept(MediaType.APPLICATION_XML)
-					     .get(HostsType.class);
+			              .request()
+			              .accept(MediaType.APPLICATION_XML)
+			              .get(HostsType.class);
 		}
 		catch (ProcessingException pe) {
 			throw new NfvReaderException("Error during JAX-RS request processing");
@@ -176,9 +176,9 @@ public class NfvReaderFactory extends it.polito.dp2.NFV.NfvReaderFactory
 		
 		try {
 			host = target.path("hosts/" + hostName)
-					     .request()
-					     .accept(MediaType.APPLICATION_XML)
-					     .get(HostType.class);
+			             .request()
+			             .accept(MediaType.APPLICATION_XML)
+			             .get(HostType.class);
 		}
 		catch (ProcessingException pe) {
 			throw new NfvReaderException("Error during JAX-RS request processing");
@@ -200,9 +200,9 @@ public class NfvReaderFactory extends it.polito.dp2.NFV.NfvReaderFactory
 		
 		try {
 			connections = target.path("connections")
-					            .request()
-					            .accept(MediaType.APPLICATION_XML)
-					            .get(ConnectionsType.class);
+			                    .request()
+			                    .accept(MediaType.APPLICATION_XML)
+			                    .get(ConnectionsType.class);
 		}
 		catch (ProcessingException pe) {
 			throw new NfvReaderException("Error during JAX-RS request processing");
@@ -216,5 +216,5 @@ public class NfvReaderFactory extends it.polito.dp2.NFV.NfvReaderFactory
 		
 		return connections;
 	}
-	
+
 }

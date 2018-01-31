@@ -35,13 +35,13 @@ public class MyNffgReader extends MyNamedEntityReader implements NffgReader
 			nodes.add(newNode_r);
 		}
 	}
-
+	
 	@Override
 	public Calendar getDeployTime()
 	{
 		return deployTime;
 	}
-
+	
 	@Override
 	public NodeReader getNode(String arg0)
 	{
@@ -53,7 +53,7 @@ public class MyNffgReader extends MyNamedEntityReader implements NffgReader
 		
 		return nodeMap.get(arg0);
 	}
-
+	
 	@Override
 	public Set<NodeReader> getNodes()
 	{

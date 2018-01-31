@@ -21,7 +21,7 @@ public class MyNodeReader extends MyNamedEntityReader implements NodeReader
 	private HashMap<String, VNFTypeReader> vnfMap;
 	private HashMap<String, NffgReader> nffgMap;
 	private HashMap<String, HostReader> hostMap;
-
+	
 	// Class constructor
 	public MyNodeReader(NodeType node, String nffgName, HashMap<String, VNFTypeReader> vnfMap, HashMap<String, NffgReader> nffgMap, HashMap<String, NodeReader> nodeMap, HashMap<String, HostReader> hostMap)
 	{
@@ -42,25 +42,25 @@ public class MyNodeReader extends MyNamedEntityReader implements NodeReader
 			links.add(newLink_r);
 		}
 	}
-
+	
 	@Override
 	public VNFTypeReader getFuncType()
 	{
 		return vnfMap.get(vnfName);
 	}
-
+	
 	@Override
 	public HostReader getHost()
 	{
 		return hostMap.get(hostName);
 	}
-
+	
 	@Override
 	public Set<LinkReader> getLinks()
 	{
 		return links;
 	}
-
+	
 	@Override
 	public NffgReader getNffg()
 	{

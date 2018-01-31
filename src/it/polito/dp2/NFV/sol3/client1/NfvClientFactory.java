@@ -5,7 +5,6 @@ import it.polito.dp2.NFV.lab3.NfvClientException;
 
 public class NfvClientFactory extends it.polito.dp2.NFV.lab3.NfvClientFactory
 {
-
 	@Override
 	public NfvClient newNfvClient() throws NfvClientException
 	{
@@ -17,5 +16,5 @@ public class NfvClientFactory extends it.polito.dp2.NFV.lab3.NfvClientFactory
 		
 		return new MyNfvClient(serviceURL);
 	}
-	
+
 }

@@ -650,7 +650,7 @@ public class NfvDeployerService
 	}
 	
 	private boolean checkNodesAllocation(Map<String, NodeType> nodeMapTMP, Map<String, HostsStatus> hostsStatusMap)
-	{	
+	{
 		for (NodeType node: nodeMapTMP.values())
 		{
 			String hostRef = node.getHostRef();
@@ -761,12 +761,12 @@ public class NfvDeployerService
 			// Call Neo4JSimpleXML API
 			try {
 				Node res = target.path("data/node")
-						         .request(MediaType.APPLICATION_XML)
-						         .post(Entity.entity(newNode, MediaType.APPLICATION_XML), Node.class);
+				                 .request(MediaType.APPLICATION_XML)
+				                 .post(Entity.entity(newNode, MediaType.APPLICATION_XML), Node.class);
 				
 				Response res2 = target.path("data/node/" + res.getId() + "/labels")
-						              .request(MediaType.APPLICATION_XML)
-						              .post(Entity.entity(newLabels, MediaType.APPLICATION_XML));
+				                      .request(MediaType.APPLICATION_XML)
+				                      .post(Entity.entity(newLabels, MediaType.APPLICATION_XML));
 				
 				// Check "res2" response (it doesn't throw exception automatically)
 				if (res2.getStatus() != 204)
@@ -793,7 +793,7 @@ public class NfvDeployerService
 	{
 		// Type is ForwardsTo
 		if (type.equals("ForwardsTo"))
-		{			
+		{
 			for (NodeType node: nodeMapTMP.values())
 			{
 				List<LinkType> linkList = linkListMapTMP.get(node.getName());
@@ -850,8 +850,8 @@ public class NfvDeployerService
 		try {
 			@SuppressWarnings("unused")
 			Relationship res = target.path("data/node/" + srcNodeID + "/relationships")
-					                 .request(MediaType.APPLICATION_XML)
-					                 .post(Entity.entity(newRelationship, MediaType.APPLICATION_XML), Relationship.class);
+			                         .request(MediaType.APPLICATION_XML)
+			                         .post(Entity.entity(newRelationship, MediaType.APPLICATION_XML), Relationship.class);
 		}
 		catch (ProcessingException pe) {
 			throw new ServiceException("Error during JAX-RS request processing", pe);
@@ -871,11 +871,11 @@ public class NfvDeployerService
 		
 		try {
 			reachableNodes = target.path("data/node/" + nodeID + "/reachableNodes")
-					               .queryParam("relationshipTypes", "ForwardsTo")
-					               .queryParam("nodeLabel", "Node")
-					               .request()
-					               .accept(MediaType.APPLICATION_XML)
-					               .get(Nodes.class);
+			                       .queryParam("relationshipTypes", "ForwardsTo")
+			                       .queryParam("nodeLabel", "Node")
+			                       .request()
+			                       .accept(MediaType.APPLICATION_XML)
+			                       .get(Nodes.class);
 		}
 		catch (ProcessingException pe) {
 			throw new ServiceException("Error during JAX-RS request processing", pe);
@@ -889,5 +889,5 @@ public class NfvDeployerService
 		
 		return reachableNodes;
 	}
-	
+
 }

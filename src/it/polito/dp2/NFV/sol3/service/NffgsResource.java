@@ -30,7 +30,7 @@ public class NffgsResource
 	public JAXBElement<NffgsType> getNffgs()
 	{
 		return nfvService.getNffgs();
-    }
+	}
 	
 	@GET
 	@Path("{nffgName}")
@@ -38,7 +38,7 @@ public class NffgsResource
 	public JAXBElement<NffgType> getNffg(@PathParam("nffgName") String nffgName)
 	{
 		return nfvService.getNffg(nffgName);
-    }
+	}
 	
 	@GET
 	@Path("{nffgName}/nodes/{nodeName}")
@@ -46,7 +46,7 @@ public class NffgsResource
 	public JAXBElement<NodeType> getNode(@PathParam("nffgName") String nffgName, @PathParam("nodeName") String nodeName)
 	{
 		return nfvService.getNode(nffgName, nodeName);
-    }
+	}
 	
 	@GET
 	@Path("{nffgName}/nodes/{nodeName}/reachableHosts")
@@ -54,7 +54,7 @@ public class NffgsResource
 	public JAXBElement<HostsType> getReachableHosts(@PathParam("nffgName") String nffgName, @PathParam("nodeName") String nodeName)
 	{
 		return nfvService.getReachableHosts(nffgName, nodeName);
-    }
+	}
 	
 	@POST
 	@Consumes(MediaType.APPLICATION_XML)
@@ -71,7 +71,7 @@ public class NffgsResource
 		nffg = nffgElement.getValue();
 		
 		return nfvService.postNffg(nffg);
-    }
+	}
 	
 	@POST
 	@Path("{nffgName}/nodes")
@@ -89,7 +89,7 @@ public class NffgsResource
 		node = nodeElement.getValue();
 		
 		return nfvService.postNode(nffgName, node);
-    }
+	}
 	
 	@POST
 	@Path("{nffgName}/nodes/{nodeName}/links")
@@ -107,27 +107,27 @@ public class NffgsResource
 		link = linkElement.getValue();
 		
 		return nfvService.postLink(nffgName, nodeName, link);
-    }
+	}
 	
 	@DELETE
 	@Path("{nffgName}")
 	public void deleteNffg(@PathParam("nffgName") String nffgName)
 	{
 		throw new WebApplicationException(Response.Status.NOT_IMPLEMENTED);
-    }
+	}
 	
 	@DELETE
 	@Path("{nffgName}/nodes/{nodeName}")
 	public void deleteNode(@PathParam("nffgName") String nffgName, @PathParam("nodeName") String nodeName)
 	{
 		throw new WebApplicationException(Response.Status.NOT_IMPLEMENTED);
-    }
+	}
 	
 	@DELETE
 	@Path("{nffgName}/nodes/{nodeName}/links/{linkName}")
 	public void deleteLink(@PathParam("nffgName") String nffgName, @PathParam("nodeName") String nodeName, @PathParam("linkName") String linkName)
 	{
 		throw new WebApplicationException(Response.Status.NOT_IMPLEMENTED);
-    }
-	
+	}
+
 }

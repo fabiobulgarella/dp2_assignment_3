@@ -19,5 +19,6 @@ public class CatalogResource
 	public JAXBElement<CatalogType> getCatalog()
 	{
 		return nfvService.getCatalog();
-    }
+	}
+
 }
